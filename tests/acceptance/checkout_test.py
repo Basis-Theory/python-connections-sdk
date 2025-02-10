@@ -9,8 +9,8 @@ from dotenv import load_dotenv
 from basistheory.api_client import ApiClient # type: ignore
 from basistheory.configuration import Configuration # type: ignore
 from basistheory.api.tokens_api import TokensApi # type: ignore
-from orchestration_sdk import PaymentOrchestrationSDK
-from orchestration_sdk.models import (
+from python_connections_sdk import PaymentOrchestrationSDK
+from python_connections_sdk.models import (
     TransactionResponse,
     TransactionStatus,
     TransactionSource,
@@ -35,7 +35,7 @@ from orchestration_sdk.models import (
     ErrorCategory,
     ErrorType
 )
-from orchestration_sdk.exceptions import TransactionError, ValidationError
+from python_connections_sdk.exceptions import TransactionError, ValidationError
 
 # Load environment variables from .env file
 load_dotenv()

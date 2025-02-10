@@ -20,8 +20,8 @@ pip install payment-orchestration-sdk
 ## Quick Start
 
 ```python
-from orchestration_sdk import PaymentOrchestrationSDK
-from orchestration_sdk.models import RecurringType
+from python_connections_sdk import PaymentOrchestrationSDK
+from python_connections_sdk.models import RecurringType
 
 # Initialize the SDK with your chosen provider
 sdk = PaymentOrchestrationSDK.init({
