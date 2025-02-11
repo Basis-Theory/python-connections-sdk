@@ -8,9 +8,9 @@ Configure Checkout.com in the SDK initialization, for additional information on 
 
 ```python
 sdk = Connections.init({
-    'isTest': True,  # Set to False for production
-    'btApiKey': os.getenv('BASISTHEORY_API_KEY'),
-    'providerConfig': {
+    'is_test': True,  # Set to False for production
+    'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
+    'provider_config': {
         'checkout': {
             'private_key': os.getenv('CHECKOUT_PRIVATE_KEY'),
             'processing_channel': os.getenv('CHECKOUT_PROCESSING_CHANNEL')  # Optional

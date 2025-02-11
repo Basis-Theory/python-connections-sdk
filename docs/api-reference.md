@@ -6,9 +6,9 @@ Initialize the SDK with configuration options.
 
 ```python
 sdk = Connections.init({
-    'isTest': bool,
-    'btApiKey': str,
-    'providerConfig': {
+    'is_test': bool,
+    'bt_api_key': str,
+    'provider_config': {
         [provider]: <ProviderConfig>
     }
 })
@@ -18,9 +18,9 @@ sdk = Connections.init({
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| isTest | bool | Yes | - | Whether to use the test environment for the provider |
-| btApiKey | str | Yes | - | Basis Theory API key |
-| providerConfig | Dict[str, ProviderConfig] | Yes | - | Configuration for the payment provider |
+| is_test | bool | Yes | - | Whether to use the test environment for the provider |
+| bt_api_key | str | Yes | - | Basis Theory API key |
+| provider_config | Dict[str, ProviderConfig] | Yes | - | Configuration for the payment provider |
 
 ## Transaction Methods
 
