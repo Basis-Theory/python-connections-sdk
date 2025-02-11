@@ -34,7 +34,7 @@ jobs:
       - name: Bootstrap poetry
         run: |
           curl -sSL https://install.python-poetry.org | python - -y --version 1.5.1
-          
+
       - name: Install dependencies
         run: poetry install
 
@@ -44,7 +44,7 @@ jobs:
       - name: "Release"
         env:
           GH_TOKEN: ${{ secrets.GH_SEMANTIC_RELEASE_PAT }}
-          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+          PYPI_TOKEN: ${{ secrets.PYPI_API_KEY }}
         run: |
           yarn install --frozen-lockfile
           yarn release
