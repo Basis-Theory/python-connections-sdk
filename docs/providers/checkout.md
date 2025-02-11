@@ -38,4 +38,4 @@ For testing, a few test card numbers are provided below, for a full list of test
 
 ## Transactions
 
-You will use the `sdk.checkout.transaction()` method to process transactions following the [TransactionRequest](../api-reference.md#transactionrequest) model.
+You will use the `sdk.checkout.create_transaction()` method to process transactions following the [TransactionRequest](../api-reference.md#transactionrequest) model.

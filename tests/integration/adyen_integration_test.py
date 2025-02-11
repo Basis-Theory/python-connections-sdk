@@ -126,7 +126,7 @@ async def test_errors():
         with patch('requests.request', return_value=mock_response) as mock_request:
             # For error cases, expect TransactionError with correct error code
             with pytest.raises(TransactionError) as exc_info:
-                await sdk.adyen.transaction(transaction_request)
+                await sdk.adyen.create_transaction(transaction_request)
             
             error_response = exc_info.value.error_response
             assert error_response.error_codes[0].code == test_case["expected_error"].code

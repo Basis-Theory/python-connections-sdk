@@ -124,7 +124,7 @@ async def test_storing_card_on_file():
 
 
     # Make the transaction request
-    response = await sdk.adyen.transaction(transaction_request)
+    response = await sdk.adyen.create_transaction(transaction_request)
     print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
@@ -188,7 +188,7 @@ async def test_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.adyen.transaction(transaction_request)
+    response = await sdk.adyen.create_transaction(transaction_request)
     print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
@@ -255,7 +255,7 @@ async def test_with_three_ds():
     )
 
     # Make the transaction request
-    response = await sdk.adyen.transaction(transaction_request)
+    response = await sdk.adyen.create_transaction(transaction_request)
     print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
@@ -316,7 +316,7 @@ async def test_error_expired_card():
     print(f"Transaction request: {transaction_request}")
     # Make the transaction request and catch TransactionError
     try:
-        response = await sdk.adyen.transaction(transaction_request)
+        response = await sdk.adyen.create_transaction(transaction_request)
         print(f"Response: {response}")
     except TransactionError as e:
         response = e.error_response
@@ -367,7 +367,7 @@ async def test_error_invalid_api_key():
     print(f"Transaction request: {transaction_request}")
     # Make the transaction request and catch BasisTheoryException
     try:
-        response = await sdk.adyen.transaction(transaction_request)
+        response = await sdk.adyen.create_transaction(transaction_request)
         print(f"Response: {response}")
     except TransactionError as e:
         response = e.error_response
@@ -413,7 +413,7 @@ async def test_token_intents_charge_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.adyen.transaction(transaction_request)
+    response = await sdk.adyen.create_transaction(transaction_request)
     print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
@@ -466,7 +466,7 @@ async def test_processor_token_charge_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.adyen.transaction(transaction_request)
+    response = await sdk.adyen.create_transaction(transaction_request)
     print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
@@ -520,7 +520,7 @@ async def test_partial_refund():
     )
 
     # Make the transaction request
-    response = await sdk.adyen.transaction(transaction_request)
+    response = await sdk.adyen.create_transaction(transaction_request)
     
     refund_request = RefundRequest(
         original_transaction_id=response.id,

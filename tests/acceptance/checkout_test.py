@@ -137,7 +137,7 @@ async def test_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.transaction(transaction_request)
+    response = await sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -197,7 +197,7 @@ async def test_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.transaction(transaction_request)
+    response = await sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -267,7 +267,7 @@ async def test_with_three_ds():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.transaction(transaction_request)
+    response = await sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -334,7 +334,7 @@ async def test_error_expired_card():
 
     # Make the transaction request and expect a TransactionError
     with pytest.raises(TransactionError) as exc_info:
-        await sdk.checkout.transaction(transaction_request)
+        await sdk.checkout.create_transaction(transaction_request)
 
     # Get the error response from the exception
     error_response = exc_info.value.error_response
@@ -389,7 +389,7 @@ async def test_error_invalid_api_key():
 
     # Make the transaction request and expect a TransactionError
     with pytest.raises(TransactionError) as exc_info:
-        await sdk.checkout.transaction(transaction_request)
+        await sdk.checkout.create_transaction(transaction_request)
 
     # Get the error response from the exception
     error_response = exc_info.value.error_response
@@ -437,7 +437,7 @@ async def test_token_intents_charge_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.transaction(transaction_request)
+    response = await sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -502,7 +502,7 @@ async def test_processor_token_charge_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.transaction(transaction_request)
+    response = await sdk.checkout.create_transaction(transaction_request)
 
     token_id = response.source.provisioned.id
 
@@ -522,7 +522,7 @@ async def test_processor_token_charge_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.transaction(transaction_request)
+    response = await sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -582,7 +582,7 @@ async def test_partial_refund():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.transaction(transaction_request)
+    response = await sdk.checkout.create_transaction(transaction_request)
     
     refund_request = RefundRequest(
         original_transaction_id=response.id,
@@ -624,7 +624,7 @@ async def test_failed_refund():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.transaction(transaction_request)
+    response = await sdk.checkout.create_transaction(transaction_request)
     
     refund_request = RefundRequest(
         original_transaction_id=response.id,
@@ -670,7 +670,7 @@ async def test_failed_refund_amount_exceeds_balance():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.transaction(transaction_request)
+    response = await sdk.checkout.create_transaction(transaction_request)
     
     refund_request = RefundRequest(
         original_transaction_id=response.id,
@@ -732,7 +732,7 @@ async def run_transactions_for_list(channel, transactions):
         }
 
         # Make the transaction request
-        response = await sdk.checkout.transaction(transaction_request)
+        response = await sdk.checkout.create_transaction(transaction_request)
         print(f"Response for reference {tx_data['reference']}: {response}")
 
         # Validate response structure
