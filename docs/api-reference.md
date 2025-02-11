@@ -1,13 +1,11 @@
 # API Reference
 
-Complete reference for the Payment Orchestration SDK.
-
 ## SDK Initialization
 
 Initialize the SDK with configuration options.
 
 ```python
-sdk = PaymentOrchestrationSDK.init({
+sdk = Connections.init({
     'isTest': bool,
     'btApiKey': str,
     'providerConfig': {

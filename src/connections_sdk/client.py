@@ -24,8 +24,8 @@ class ProviderConfig:
     checkout: Optional[CheckoutConfig] = None
 
 
-class PaymentOrchestrationSDK:
-    _instance: Optional['PaymentOrchestrationSDK'] = None
+class Connections:
+    _instance: Optional['Connections'] = None
 
     def __init__(self) -> None:
         self.is_test: bool = False
@@ -33,8 +33,8 @@ class PaymentOrchestrationSDK:
         self.provider_config: Optional[ProviderConfig] = None
 
     @classmethod
-    def init(cls, config: Dict[str, Any]) -> 'PaymentOrchestrationSDK':
-        """Initialize the Payment Orchestration SDK with the provided configuration."""
+    def init(cls, config: Dict[str, Any]) -> 'Connections':
+        """Initialize the Connections SDK with the provided configuration."""
         if cls._instance is None:
             cls._instance = cls()
 
@@ -45,7 +45,7 @@ class PaymentOrchestrationSDK:
         if 'provider_config' not in config:
             raise ConfigurationError("'provider_config' parameter is required")
 
-        instance = cast(PaymentOrchestrationSDK, cls._instance)
+        instance = cast(Connections, cls._instance)
         instance.is_test = config['is_test']
         instance.bt_api_key = config['bt_api_key']
 
@@ -72,10 +72,10 @@ class PaymentOrchestrationSDK:
         return instance
 
     @classmethod
-    def get_instance(cls) -> 'PaymentOrchestrationSDK':
+    def get_instance(cls) -> 'Connections':
         """Get the initialized SDK instance."""
         if cls._instance is None:
-            raise ConfigurationError("PaymentOrchestrationSDK must be initialized with init() before use")
+            raise ConfigurationError("Connections must be initialized with init() before use")
         return cls._instance
 
     @property

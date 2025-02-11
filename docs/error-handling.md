@@ -1,6 +1,6 @@
 # Error Handling
 
-The Payment Orchestration SDK provides comprehensive error handling with standardized error categories and codes across different payment providers.
+The Connections SDK provides comprehensive error handling with standardized error categories and codes across different payment providers.
 
 ## Error Response Structure
 

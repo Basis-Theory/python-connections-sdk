@@ -4,7 +4,7 @@ import pytest
 import requests
 from datetime import datetime
 from unittest.mock import MagicMock, patch
-from connections_sdk import PaymentOrchestrationSDK
+from connections_sdk import Connections
 from connections_sdk.models import (
     TransactionStatusCode,
     RecurringType,
@@ -69,7 +69,7 @@ async def test_errors():
     ]
 
     # Initialize the SDK
-    sdk = PaymentOrchestrationSDK.init({
+    sdk = Connections.init({
         'is_test': True,
         'bt_api_key': 'test_bt_api_key',
         'provider_config': {

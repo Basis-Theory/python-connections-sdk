@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from basistheory.api_client import ApiClient # type: ignore
 from basistheory.configuration import Configuration # type: ignore
 from basistheory.api.tokens_api import TokensApi # type: ignore
-from connections_sdk import PaymentOrchestrationSDK
+from connections_sdk import Connections
 from connections_sdk.models import (
     TransactionStatusCode,
     RecurringType,
@@ -78,7 +78,7 @@ async def create_bt_token_intent(card_number: str = "4111111145551142"):
     return response_data['id']
 
 def get_sdk(api_key = os.getenv('ADYEN_API_KEY'), merchant_account = os.getenv('ADYEN_MERCHANT_ACCOUNT')):
-    return PaymentOrchestrationSDK.init({
+    return Connections.init({
         'is_test': True,
         'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
         'provider_config': {

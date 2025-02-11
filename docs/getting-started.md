@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide will help you get started with the Payment Orchestration SDK.
+This guide will help you get started with the Connections SDK.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ This guide will help you get started with the Payment Orchestration SDK.
 Install the SDK using pip:
 
 ```bash
-pip install payment-orchestration-sdk
+pip install connections_sdk
 ```
 
 ## Basic Setup
@@ -32,13 +32,13 @@ ADYEN_MERCHANT_ACCOUNT=YOUR_MERCHANT_ACCOUNT  # If required by your provider
 ```python
 import os
 from dotenv import load_dotenv
-from connections_sdk import PaymentOrchestrationSDK
+from connections_sdk import Connections
 
 # Load environment variables
 load_dotenv()
 
 # Initialize the SDK with your chosen provider
-sdk = PaymentOrchestrationSDK.init({
+sdk = Connections.init({
     'isTest': True,
     'btApiKey': os.getenv('BASISTHEORY_API_KEY'),
     'providerConfig': {
@@ -59,7 +59,7 @@ Here's a complete example of processing a payment:
 import os
 import uuid
 from dotenv import load_dotenv
-from connections_sdk import PaymentOrchestrationSDK
+from connections_sdk import Connections
 from connections_sdk.models import RecurringType
 
 # Load environment variables
@@ -67,7 +67,7 @@ load_dotenv()
 
 async def process_payment():
     # Initialize the SDK with your chosen provider
-    sdk = PaymentOrchestrationSDK.init({
+    sdk = Connections.init({
         'isTest': True,
         'btApiKey': os.getenv('BASISTHEORY_API_KEY'),
         'providerConfig': {

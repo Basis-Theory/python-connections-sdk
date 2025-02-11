@@ -1,4 +1,4 @@
-from .client import PaymentOrchestrationSDK
+from .client import Connections
 from .config import AdyenConfig, CheckoutConfig, ProviderConfig
 
-__all__ = ['PaymentOrchestrationSDK', 'AdyenConfig', 'CheckoutConfig', 'ProviderConfig']
+__all__ = ['Connections', 'AdyenConfig', 'CheckoutConfig', 'ProviderConfig']
