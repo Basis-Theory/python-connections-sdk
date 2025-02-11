@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: PROD
+
+    steps:
+      - name: "Checkout repo"
+        uses: actions/checkout@v2
+
+      - name: Start Deploy Message
+        uses: Basis-Theory/github-actions/deploy-slack-action@master
+        with:
+          slack-api-token: ${{ secrets.SLACK_DUCKBOT_API_KEY }}
+          channel: ${{ vars.SLACK_DUCKBOT_RELEASE_CHANNEL_ID }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20"
+          cache: "yarn"
+
+      # Set up Python 3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      - name: Bootstrap poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python - -y --version 1.5.1
+          
+      - name: Install dependencies
+        run: poetry install
+
+      - name: "Build"
+        run: poetry build
+
+      - name: "Release"
+        env:
+          GH_TOKEN: ${{ secrets.GH_SEMANTIC_RELEASE_PAT }}
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          yarn install --frozen-lockfile
+          yarn release
+
+      - name: Stop Deploy Message
+        if: always()
+        uses: Basis-Theory/github-actions/deploy-slack-action@master
+        with:
+          slack-api-token: ${{ secrets.SLACK_DUCKBOT_API_KEY }}
+          channel: ${{ vars.SLACK_DUCKBOT_RELEASE_CHANNEL_ID }}
+          status: "done"

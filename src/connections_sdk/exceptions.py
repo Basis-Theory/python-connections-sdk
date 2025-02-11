@@ -1,4 +1,4 @@
-from orchestration_sdk.models import ErrorResponse
+from connections_sdk.models import ErrorResponse
 
 class TransactionError(Exception):
     error_response: ErrorResponse

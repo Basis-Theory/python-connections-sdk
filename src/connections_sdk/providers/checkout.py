@@ -28,7 +28,7 @@ from ..models import (
     TransactionSource,
     ProvisionedSource
 )
-from orchestration_sdk.exceptions import TransactionError
+from connections_sdk.exceptions import TransactionError
 from ..utils.model_utils import create_transaction_request, validate_required_fields
 from ..utils.request_client import RequestClient
 

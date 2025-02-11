@@ -9,8 +9,8 @@ from dotenv import load_dotenv
 from basistheory.api_client import ApiClient # type: ignore
 from basistheory.configuration import Configuration # type: ignore
 from basistheory.api.tokens_api import TokensApi # type: ignore
-from orchestration_sdk import PaymentOrchestrationSDK
-from orchestration_sdk.models import (
+from connections_sdk import Connections
+from connections_sdk.models import (
     TransactionResponse,
     TransactionStatus,
     TransactionSource,
@@ -35,7 +35,7 @@ from orchestration_sdk.models import (
     ErrorCategory,
     ErrorType
 )
-from orchestration_sdk.exceptions import TransactionError, ValidationError
+from connections_sdk.exceptions import TransactionError, ValidationError
 
 # Load environment variables from .env file
 load_dotenv()
@@ -88,7 +88,7 @@ async def create_bt_token_intent(card_number: str = "4242424242424242", cvc: str
     return response_data['id']
 
 def get_sdk(processing_channel = os.getenv('CHECKOUT_PROCESSING_CHANNEL'), private_key = os.getenv('CHECKOUT_PRIVATE_KEY')):
-    return PaymentOrchestrationSDK.init({
+    return Connections.init({
         'is_test': True,
         'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
         'provider_config': {

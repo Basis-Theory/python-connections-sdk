@@ -1,6 +1,6 @@
-# Payment Orchestration SDK
+# Connections SDK
 
-The Payment Orchestration SDK is a Python library that simplifies payment processing by providing a unified interface to multiple payment providers. It uses Basis Theory for secure card tokenization and supports multiple payment processors.
+The Connections SDK simplifies payment processing by providing a unified interface to multiple payment providers. It uses Basis Theory for secure card tokenization and supports multiple payment processors.
 
 ## Features
 
@@ -14,17 +14,17 @@ The Payment Orchestration SDK is a Python library that simplifies payment proces
 ## Installation
 
 ```bash
-pip install payment-orchestration-sdk
+pip install connections_sdk
 ```
 
 ## Quick Start
 
 ```python
-from orchestration_sdk import PaymentOrchestrationSDK
-from orchestration_sdk.models import RecurringType
+from connections_sdk import Connections
+from connections_sdk.models import RecurringType
 
 # Initialize the SDK with your chosen provider
-sdk = PaymentOrchestrationSDK.init({
+sdk = Connections.init({
     'isTest': True,  # Use test environment
     'btApiKey': 'YOUR_BASIS_THEORY_API_KEY',
     'providerConfig': {

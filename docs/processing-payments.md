@@ -1,6 +1,6 @@
 # Processing Payments
 
-This guide explains how to process different types of payments using the Payment Orchestration SDK.
+This guide explains how to process different types of payments using the Connections SDK.
 
 ## Table of Contents
 - [Customer Initiated Transactions (CIT)](#customer-initiated-transactions)

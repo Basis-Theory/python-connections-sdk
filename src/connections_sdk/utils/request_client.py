@@ -2,7 +2,7 @@ from typing import Dict, Any, Optional, Union, List, cast
 import requests
 from requests.models import Response
 from ..models import ErrorType, ErrorCode, ErrorResponse
-from orchestration_sdk.exceptions import BasisTheoryError
+from connections_sdk.exceptions import BasisTheoryError
 
 class RequestClient:
     def __init__(self, bt_api_key: str) -> None:

@@ -4,8 +4,8 @@ import uuid
 import pytest
 from datetime import datetime
 from dotenv import load_dotenv
-from orchestration_sdk import PaymentOrchestrationSDK
-from orchestration_sdk.models import (
+from connections_sdk import Connections
+from connections_sdk.models import (
     TransactionResponse,
     TransactionStatus,
     TransactionSource,
@@ -19,7 +19,7 @@ from orchestration_sdk.models import (
     Customer,
     SourceType
 )
-from orchestration_sdk.exceptions import BasisTheoryError
+from connections_sdk.exceptions import BasisTheoryError
 
 # Load environment variables from .env file
 load_dotenv()
@@ -27,7 +27,7 @@ load_dotenv()
 @pytest.mark.asyncio
 async def test_error_invalid_api_key():
     # Initialize the SDK with environment variables
-    sdk = PaymentOrchestrationSDK.init({
+    sdk = Connections.init({
         'is_test': True,
         'bt_api_key': "invalid",
         'provider_config': {

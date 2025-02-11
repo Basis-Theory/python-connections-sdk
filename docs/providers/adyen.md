@@ -1,13 +1,13 @@
 # Adyen Provider
 
-This guide explains how to use Adyen as a payment provider with the Payment Orchestration SDK.
+This guide explains how to use Adyen as a payment provider with the Connections SDK.
 
 ## Configuration
 
 Configure Adyen in the SDK initialization, for additional information on initializing the SDK see the [API Reference](../api-reference.md#sdk-initialization).
 
 ```python
-sdk = PaymentOrchestrationSDK.init({
+sdk = Connections.init({
     'is_test': True,  # Set to False for production
     'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
     'provider_config': {

@@ -1,6 +1,6 @@
 # Authentication
 
-This guide explains how to set up authentication for both Basis Theory and Adyen in the Payment Orchestration SDK.
+This guide explains how to set up authentication for both Basis Theory and Adyen in the Connections SDK.
 
 ## Required API Keys
 
@@ -25,13 +25,13 @@ Then in your code:
 ```python
 import os
 from dotenv import load_dotenv
-from orchestration_sdk import PaymentOrchestrationSDK
+from connections_sdk import Connections
 
 # Load environment variables
 load_dotenv()
 
 # Initialize the SDK
-sdk = PaymentOrchestrationSDK.init({
+sdk = Connections.init({
     'isTest': True,  # Set to False for production
     'btApiKey': os.getenv('BASISTHEORY_API_KEY'),
     'providerConfig': {

@@ -1,6 +1,6 @@
 # Payment Providers
 
-The Payment Orchestration SDK supports multiple payment providers. Each provider has its own specific configuration and features, but they all follow the same standardized interface for ease of use.
+The Connections SDK supports multiple payment providers. Each provider has its own specific configuration and features, but they all follow the same standardized interface for ease of use.
 
 ## Available Providers
 

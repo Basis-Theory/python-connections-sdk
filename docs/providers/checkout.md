@@ -1,13 +1,13 @@
 # Checkout.com Provider
 
-This guide explains how to use Checkout.com as a payment provider with the Payment Orchestration SDK.
+This guide explains how to use Checkout.com as a payment provider with the Connections SDK.
 
 ## Configuration
 
 Configure Checkout.com in the SDK initialization, for additional information on initializing the SDK see the [API Reference](../api-reference.md#sdk-initialization).
 
 ```python
-sdk = PaymentOrchestrationSDK.init({
+sdk = Connections.init({
     'isTest': True,  # Set to False for production
     'btApiKey': os.getenv('BASISTHEORY_API_KEY'),
     'providerConfig': {

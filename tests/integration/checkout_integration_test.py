@@ -4,8 +4,8 @@ import pytest
 import requests
 from datetime import datetime
 from unittest.mock import MagicMock, patch
-from orchestration_sdk import PaymentOrchestrationSDK
-from orchestration_sdk.models import (
+from connections_sdk import Connections
+from connections_sdk.models import (
     TransactionStatusCode,
     RecurringType,
     SourceType,
@@ -16,7 +16,7 @@ from orchestration_sdk.models import (
     Source,
     Customer
 )
-from orchestration_sdk.exceptions import TransactionError, ValidationError
+from connections_sdk.exceptions import TransactionError, ValidationError
 
 @pytest.mark.asyncio
 async def test_errors():
@@ -70,7 +70,7 @@ async def test_errors():
     ]
 
     # Initialize the SDK
-    sdk = PaymentOrchestrationSDK.init({
+    sdk = Connections.init({
         'is_test': True,
         'bt_api_key': 'test_bt_api_key',
         'provider_config': {
