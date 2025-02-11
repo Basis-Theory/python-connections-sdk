@@ -2,7 +2,7 @@
     "name": "connections_sdk",
     "version": "0.1.0",
     "description": "Basis Theory Python Connections SDK",
-    "repository": "https://github.com/Basis-Theory/connections_sdk",
+    "repository": "https://github.com/Basis-Theory/python-connections-sdk",
     "author": "Basis Theory",
     "license": "Apache-2.0",
     "scripts": {
