@@ -4,8 +4,8 @@ import uuid
 import pytest
 from datetime import datetime
 from dotenv import load_dotenv
-from python_connections_sdk import PaymentOrchestrationSDK
-from python_connections_sdk.models import (
+from connections_sdk import PaymentOrchestrationSDK
+from connections_sdk.models import (
     TransactionResponse,
     TransactionStatus,
     TransactionSource,
@@ -19,7 +19,7 @@ from python_connections_sdk.models import (
     Customer,
     SourceType
 )
-from python_connections_sdk.exceptions import BasisTheoryError
+from connections_sdk.exceptions import BasisTheoryError
 
 # Load environment variables from .env file
 load_dotenv()

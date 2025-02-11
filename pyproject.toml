@@ -3,7 +3,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "python_connections_sdk"
+name = "connections_sdk"
 version = "0.1.0"
 description = "A Python SDK for payment processing"
 authors = ["Basis Theory <support@basistheory.com>"]

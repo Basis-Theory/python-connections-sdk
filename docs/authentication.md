@@ -25,7 +25,7 @@ Then in your code:
 ```python
 import os
 from dotenv import load_dotenv
-from python_connections_sdk import PaymentOrchestrationSDK
+from connections_sdk import PaymentOrchestrationSDK
 
 # Load environment variables
 load_dotenv()

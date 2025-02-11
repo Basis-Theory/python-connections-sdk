@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 from basistheory.api_client import ApiClient # type: ignore
 from basistheory.configuration import Configuration # type: ignore
 from basistheory.api.tokens_api import TokensApi # type: ignore
-from python_connections_sdk import PaymentOrchestrationSDK
-from python_connections_sdk.models import (
+from connections_sdk import PaymentOrchestrationSDK
+from connections_sdk.models import (
     TransactionStatusCode,
     RecurringType,
     RefundRequest,
@@ -26,7 +26,7 @@ from python_connections_sdk.models import (
     TransactionSource,
     ProvisionedSource
 )
-from python_connections_sdk.exceptions import TransactionError, ValidationError, BasisTheoryError
+from connections_sdk.exceptions import TransactionError, ValidationError, BasisTheoryError
 
 # Load environment variables from .env file
 load_dotenv()

@@ -4,8 +4,8 @@ import pytest
 import requests
 from datetime import datetime
 from unittest.mock import MagicMock, patch
-from python_connections_sdk import PaymentOrchestrationSDK
-from python_connections_sdk.models import (
+from connections_sdk import PaymentOrchestrationSDK
+from connections_sdk.models import (
     TransactionStatusCode,
     RecurringType,
     SourceType,
@@ -16,7 +16,7 @@ from python_connections_sdk.models import (
     Customer,
     Address
 )
-from python_connections_sdk.exceptions import TransactionError
+from connections_sdk.exceptions import TransactionError
 
 @pytest.mark.asyncio
 async def test_errors():
