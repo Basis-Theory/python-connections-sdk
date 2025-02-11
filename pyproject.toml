@@ -9,6 +9,9 @@ description = "A Python SDK for payment processing"
 authors = ["Basis Theory <support@basistheory.com>"]
 readme = "README.md"
 
+[project.urls]
+Repository = 'https://github.com/Basis-Theory/python-connections-sdk'
+
 [tool.poetry.dependencies]
 python = ">=3.8"
 requests = ">=2.32.2"
