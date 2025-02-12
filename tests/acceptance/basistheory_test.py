@@ -62,7 +62,7 @@ async def test_error_invalid_api_key():
 
     # Make the transaction request and expect a BasisTheoryError
     with pytest.raises(BasisTheoryError) as exc_info:
-        await sdk.adyen.transaction(transaction_request)
+        await sdk.adyen.create_transaction(transaction_request)
 
     error = exc_info.value
     

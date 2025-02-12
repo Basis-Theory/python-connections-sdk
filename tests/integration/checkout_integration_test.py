@@ -121,7 +121,7 @@ async def test_errors():
         with patch('requests.request', side_effect=mock_error) as mock_request:
             # Make the transaction request and expect a TransactionError
             with pytest.raises(TransactionError) as exc_info:
-                await sdk.checkout.transaction(transaction_request)
+                await sdk.checkout.create_transaction(transaction_request)
 
             # Get the error response from the exception
             error_response = exc_info.value.error_response

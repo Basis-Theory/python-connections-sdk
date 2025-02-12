@@ -33,7 +33,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.transaction(transaction_request)
+response = await sdk.adyen.create_transaction(transaction_request)
 ```
 
 ### $0 Authentication
@@ -69,7 +69,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.transaction(transaction_request)
+response = await sdk.adyen.create_transaction(transaction_request)
 ```
 
 ### Card-on-File Payments
@@ -105,7 +105,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.transaction(transaction_request)
+response = await sdk.adyen.create_transaction(transaction_request)
 ```
 
 ### First subscription / unscheduled payment
@@ -140,7 +140,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.transaction(transaction_request)
+response = await sdk.adyen.create_transaction(transaction_request)
 ```
 
 ## Merchant Initiated Transactions (MIT)
@@ -169,7 +169,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.transaction(transaction_request)
+response = await sdk.adyen.create_transaction(transaction_request)
 ```
 
 ## 3DS Authentication
@@ -200,7 +200,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.transaction(transaction_request)
+response = await sdk.adyen.create_transaction(transaction_request)
 ```
 
 ## Using Basis Theory Token Intents
@@ -226,7 +226,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.transaction(transaction_request)
+response = await sdk.adyen.create_transaction(transaction_request)
 ```
 
 ## Using Processor Tokens
@@ -251,7 +251,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.transaction(transaction_request)
+response = await sdk.adyen.create_transaction(transaction_request)
 ```
 
 ## Response Handling

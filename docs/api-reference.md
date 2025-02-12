@@ -6,9 +6,9 @@ Initialize the SDK with configuration options.
 
 ```python
 sdk = Connections.init({
-    'isTest': bool,
-    'btApiKey': str,
-    'providerConfig': {
+    'is_test': bool,
+    'bt_api_key': str,
+    'provider_config': {
         [provider]: <ProviderConfig>
     }
 })
@@ -18,9 +18,9 @@ sdk = Connections.init({
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| isTest | bool | Yes | - | Whether to use the test environment for the provider |
-| btApiKey | str | Yes | - | Basis Theory API key |
-| providerConfig | Dict[str, ProviderConfig] | Yes | - | Configuration for the payment provider |
+| is_test | bool | Yes | - | Whether to use the test environment for the provider |
+| bt_api_key | str | Yes | - | Basis Theory API key |
+| provider_config | Dict[str, ProviderConfig] | Yes | - | Configuration for the payment provider |
 
 ## Transaction Methods
 
@@ -96,6 +96,43 @@ await sdk.[provider].transaction(TransactionRequest(
 | fullProviderResponse | Dict[str, Any] | None | Complete response from the payment provider |
 | createdt | datetime | None | Timestamp when transaction was created |
 | network_transaction_id | str | None | Network transaction identifier |
+
+## Refund Methods
+
+Process a refund through a provider. Each provider uses the same method signature, request model, and response model.
+
+```python
+await sdk.[provider].refund_transaction(RefundRequest(
+    original_transaction_id='ORIGINAL_TRANSACTION_ID',
+    reference='unique-refund-reference',
+    amount=Amount(
+        value=1000,
+        currency='USD'
+    ),
+    reason=RefundReason.CUSTOMER_REQUEST
+))
+```
+
+### Request Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| original_transaction_id | str | Yes | - | ID of the original transaction to refund |
+| reference | str | Yes | - | Unique refund reference |
+| amount | Amount | Yes | - | Amount to refund |
+| reason | RefundReason | No | None | Reason for the refund |
+
+### Response
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| id | str | None | Unique identifier for the refund |
+| reference | str | None | Reference identifier provided in the request |
+| amount | Amount | None | Amount details of the refund |
+| status | RefundStatus | None | Current status of the refund |
+| refunded_transaction_id | str | None | ID of the original transaction that was refunded |
+| full_provider_response | Dict[str, Any] | None | Complete response from the payment provider |
+| created_at | datetime | None | Timestamp when refund was created |
 
 
 ## Request Models
@@ -193,6 +230,16 @@ await sdk.[provider].transaction(TransactionRequest(
 | CHALLENGE_SHOPPER | Additional shopper authentication required |
 | RECEIVED | Transaction request was received |
 | PARTIALLY_AUTHORIZED | Transaction was partially authorized |
+
+### RefundReason
+
+| Value | Description |
+|-------|-------------|
+| FRAUD | Refund due to fraudulent activity |
+| CUSTOMER_REQUEST | Customer requested the refund |
+| RETURN | Refund for returned goods |
+| DUPLICATE | Refund for a duplicate charge |
+| OTHER | Other reason for refund |
 
 ## Error Handling
 
