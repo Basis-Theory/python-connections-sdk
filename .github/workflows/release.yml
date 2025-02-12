@@ -13,7 +13,7 @@ jobs:
       - name: "Checkout repo"
         uses: actions/checkout@v2
         with:
-            token: ${{ secrets.GH_SEMANTIC_RELEASE_PAT }}
+          token: ${{ secrets.GH_SEMANTIC_RELEASE_PAT }}
 
       - name: Start Deploy Message
         uses: Basis-Theory/github-actions/deploy-slack-action@master
