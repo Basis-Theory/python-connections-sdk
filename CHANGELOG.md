@@ -1,3 +1,15 @@
+# [1.0.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v0.1.0...v1.0.0) (2025-03-12)
+
+
+### Features
+
+* moving to sync methods vs async ([#36](https://github.com/Basis-Theory/python-connections-sdk/issues/36)) ([845da24](https://github.com/Basis-Theory/python-connections-sdk/commit/845da24b594adccc978fa228d3c5bd6e66e9a034))
+
+
+### BREAKING CHANGES
+
+* will no longer need to await or asyncio
+
 # [0.1.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v0.0.1...v0.1.0) (2025-02-12)
 
 
