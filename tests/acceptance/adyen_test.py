@@ -31,7 +31,7 @@ from connections_sdk.exceptions import TransactionError, ValidationError, BasisT
 # Load environment variables from .env file
 load_dotenv()
 
-async def create_bt_token(card_number: str = "4111111145551142"):
+def create_bt_token(card_number: str = "4111111145551142"):
     """Create a Basis Theory token for testing."""
     configuration = Configuration(
         api_key=os.getenv('BASISTHEORY_API_KEY')
@@ -53,7 +53,7 @@ async def create_bt_token(card_number: str = "4111111145551142"):
         })
         return token.id
 
-async def create_bt_token_intent(card_number: str = "4111111145551142"):
+def create_bt_token_intent(card_number: str = "4111111145551142"):
     """Create a Basis Theory token for testing."""
     import requests
 
@@ -89,10 +89,9 @@ def get_sdk(api_key = os.getenv('ADYEN_API_KEY'), merchant_account = os.getenv('
         }
     })
 
-@pytest.mark.asyncio
-async def test_storing_card_on_file():
+def test_storing_card_on_file():
     # Create a Basis Theory token
-    token_id = await create_bt_token()
+    token_id = create_bt_token()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -122,9 +121,8 @@ async def test_storing_card_on_file():
         )
     )
 
-
     # Make the transaction request
-    response = await sdk.adyen.create_transaction(transaction_request)
+    response = sdk.adyen.create_transaction(transaction_request)
     print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
@@ -160,11 +158,9 @@ async def test_storing_card_on_file():
     assert isinstance(response.network_transaction_id, str)
     assert len(response.network_transaction_id) > 0
 
-
-@pytest.mark.asyncio
-async def test_not_storing_card_on_file():
+def test_not_storing_card_on_file():
     # Create a Basis Theory token
-    token_id = await create_bt_token()
+    token_id = create_bt_token()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk(); 
@@ -188,7 +184,7 @@ async def test_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.adyen.create_transaction(transaction_request)
+    response = sdk.adyen.create_transaction(transaction_request)
     print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
@@ -221,11 +217,9 @@ async def test_not_storing_card_on_file():
     assert isinstance(response.network_transaction_id, str)
     assert len(response.network_transaction_id) > 0
 
-
-@pytest.mark.asyncio
-async def test_with_three_ds():
+def test_with_three_ds():
     # Create a Basis Theory token
-    token_id = await create_bt_token("4917610000000000")
+    token_id = create_bt_token("4917610000000000")
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -255,7 +249,7 @@ async def test_with_three_ds():
     )
 
     # Make the transaction request
-    response = await sdk.adyen.create_transaction(transaction_request)
+    response = sdk.adyen.create_transaction(transaction_request)
     print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
@@ -286,11 +280,9 @@ async def test_with_three_ds():
     assert response.network_transaction_id is not None
     assert len(response.network_transaction_id) > 0
 
-
-@pytest.mark.asyncio
-async def test_error_expired_card():
+def test_error_expired_card():
     # Create a Basis Theory token
-    token_id = await create_bt_token()
+    token_id = create_bt_token()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -316,7 +308,7 @@ async def test_error_expired_card():
     print(f"Transaction request: {transaction_request}")
     # Make the transaction request and catch TransactionError
     try:
-        response = await sdk.adyen.create_transaction(transaction_request)
+        response = sdk.adyen.create_transaction(transaction_request)
         print(f"Response: {response}")
     except TransactionError as e:
         response = e.error_response
@@ -342,10 +334,9 @@ async def test_error_expired_card():
     assert response.full_provider_response['refusalReason'] == 'Expired Card'
     assert response.full_provider_response['refusalReasonCode'] == '6'
 
-@pytest.mark.asyncio
-async def test_error_invalid_api_key():
+def test_error_invalid_api_key():
     # Create a Basis Theory token
-    token_id = await create_bt_token()
+    token_id = create_bt_token()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk('invalid', 'nope');
@@ -367,7 +358,7 @@ async def test_error_invalid_api_key():
     print(f"Transaction request: {transaction_request}")
     # Make the transaction request and catch BasisTheoryException
     try:
-        response = await sdk.adyen.create_transaction(transaction_request)
+        response = sdk.adyen.create_transaction(transaction_request)
         print(f"Response: {response}")
     except TransactionError as e:
         response = e.error_response
@@ -392,10 +383,9 @@ async def test_error_invalid_api_key():
     assert response.full_provider_response['errorType'] == 'security'
     assert response.full_provider_response['message'] == 'HTTP Status Response - Unauthorized'
 
-@pytest.mark.asyncio
-async def test_token_intents_charge_not_storing_card_on_file(): 
+def test_token_intents_charge_not_storing_card_on_file(): 
     # Create a Basis Theory token
-    token_intent_id = await create_bt_token_intent()
+    token_intent_id = create_bt_token_intent()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -413,7 +403,7 @@ async def test_token_intents_charge_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.adyen.create_transaction(transaction_request)
+    response = sdk.adyen.create_transaction(transaction_request)
     print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
@@ -442,10 +432,9 @@ async def test_token_intents_charge_not_storing_card_on_file():
     assert len(response.network_transaction_id) > 0
 
 
-@pytest.mark.asyncio
-async def test_processor_token_charge_not_storing_card_on_file(): 
+def test_processor_token_charge_not_storing_card_on_file(): 
     # Create a Basis Theory token
-    token_intent_id = await create_bt_token_intent()
+    token_intent_id = create_bt_token_intent()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -466,7 +455,7 @@ async def test_processor_token_charge_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.adyen.create_transaction(transaction_request)
+    response = sdk.adyen.create_transaction(transaction_request)
     print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
@@ -493,10 +482,9 @@ async def test_processor_token_charge_not_storing_card_on_file():
     assert isinstance(response.network_transaction_id, str)
     assert len(response.network_transaction_id) > 0
 
-@pytest.mark.asyncio
-async def test_partial_refund():
+def test_partial_refund():
    # Create a Basis Theory token
-    token_intent_id = await create_bt_token_intent()
+    token_intent_id = create_bt_token_intent()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -520,7 +508,7 @@ async def test_partial_refund():
     )
 
     # Make the transaction request
-    response = await sdk.adyen.create_transaction(transaction_request)
+    response = sdk.adyen.create_transaction(transaction_request)
     
     refund_request = RefundRequest(
         original_transaction_id=response.id,
@@ -529,7 +517,7 @@ async def test_partial_refund():
     )
 
     # Process the refund
-    refund_response = await sdk.adyen.refund_transaction(refund_request)
+    refund_response = sdk.adyen.refund_transaction(refund_request)
 
     # Verify refund succeeded
     assert refund_response.reference == refund_request.reference

@@ -295,7 +295,7 @@ class AdyenClient:
         )
 
 
-    async def create_transaction(self, request_data: TransactionRequest) -> TransactionResponse:
+    def create_transaction(self, request_data: TransactionRequest) -> TransactionResponse:
         """Process a payment transaction through Adyen's API directly or via Basis Theory's proxy."""
         validate_required_fields(request_data)
 
@@ -336,7 +336,7 @@ class AdyenClient:
             raise TransactionError(self._transform_error_response(e.response, error_data))
 
 
-    async def refund_transaction(self, refund_request: RefundRequest) -> RefundResponse:
+    def refund_transaction(self, refund_request: RefundRequest) -> RefundResponse:
         """
         Refund a payment transaction through Adyen's API.
         

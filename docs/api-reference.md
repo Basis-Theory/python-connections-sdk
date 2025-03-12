@@ -27,7 +27,7 @@ sdk = Connections.init({
 Process a payment transaction through a provider, find all of the providers available in our [Providers](./providers/index.md) documentation. Each provider uses the same method signature, request model, and response model. Keep in mind - Each provider may have a unique combination of these fields to accomplish the same goal (e.g. Charging a card-on-file for a subscription vs a customer initiated transaction for two different providers).
 
 ```python
-await sdk.[provider].transaction(TransactionRequest(
+sdk.[provider].transaction(TransactionRequest(
     reference='merchant-reference-123',
     type=RecurringType.UNSCHEDULED,
     merchant_initiated=True,
@@ -102,7 +102,7 @@ await sdk.[provider].transaction(TransactionRequest(
 Process a refund through a provider. Each provider uses the same method signature, request model, and response model.
 
 ```python
-await sdk.[provider].refund_transaction(RefundRequest(
+sdk.[provider].refund_transaction(RefundRequest(
     original_transaction_id='ORIGINAL_TRANSACTION_ID',
     reference='unique-refund-reference',
     amount=Amount(

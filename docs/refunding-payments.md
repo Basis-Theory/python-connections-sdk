@@ -21,7 +21,7 @@ refund_request = RefundRequest(
     reason=RefundReason.CUSTOMER_REQUEST  # Optional
 )
 
-response = await sdk.adyen.refund_transaction(refund_request)
+response = sdk.adyen.refund_transaction(refund_request)
 ```
 
 The `reason` field is optional and can be one of:
