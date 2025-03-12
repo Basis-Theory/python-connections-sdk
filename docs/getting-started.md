@@ -123,7 +123,7 @@ async def process_payment():
 
     try:
         # Process the transaction with your chosen provider
-        response = await sdk.adyen.create_transaction(transaction_request)  # Use sdk.<provider>.transaction()
+        response = sdk.adyen.create_transaction(transaction_request)  # Use sdk.<provider>.transaction()
         print(f"Transaction successful: {response}")
         
         return response
@@ -134,8 +134,7 @@ async def process_payment():
 
 # Run the payment process
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(process_payment())
+    process_payment()
 ```
 
 ## Next Steps

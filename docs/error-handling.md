@@ -107,7 +107,7 @@ The SDK includes the following error types:
 
 ```python
 try:
-    response = await sdk.adyen.create_transaction(transaction_request)
+    response = sdk.adyen.create_transaction(transaction_request)
 except Exception as e:
     # Exception will have e.error_response
     # ErrorResponse(

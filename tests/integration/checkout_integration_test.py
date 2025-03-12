@@ -18,8 +18,7 @@ from connections_sdk.models import (
 )
 from connections_sdk.exceptions import TransactionError, ValidationError
 
-@pytest.mark.asyncio
-async def test_errors():
+def test_errors():  
     # Define test cases mapping
     test_cases = [
         {"error_type": "processing_error", "error_codes": ["card_authorization_failed"], "expected_error": ErrorType.REFUSED},
@@ -121,14 +120,13 @@ async def test_errors():
         with patch('requests.request', side_effect=mock_error) as mock_request:
             # Make the transaction request and expect a TransactionError
             with pytest.raises(TransactionError) as exc_info:
-                await sdk.checkout.create_transaction(transaction_request)
+                sdk.checkout.create_transaction(transaction_request)
 
             # Get the error response from the exception
             error_response = exc_info.value.error_response
 
             # Verify the request was made with correct parameters
             mock_request.assert_called_once()
-
             # Validate error response structure
             assert isinstance(error_response.error_codes, list)
             assert len(error_response.error_codes) == 1
@@ -146,3 +144,4 @@ async def test_errors():
             assert isinstance(error_response.full_provider_response, dict)
             assert error_response.full_provider_response['error_type'] == test_case["error_type"]
             assert error_response.full_provider_response['error_codes'] == test_case["error_codes"]
+

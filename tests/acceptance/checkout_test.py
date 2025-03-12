@@ -2,7 +2,6 @@
 import os
 import json
 import uuid
-import asyncio
 import pytest
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
@@ -41,7 +40,7 @@ from connections_sdk.exceptions import TransactionError, ValidationError
 load_dotenv()
 
 
-async def create_bt_token(card_number: str = "4242424242424242", expiration_year: str = "2030", expiration_month: str = "03", cvc: str = "100"):
+def create_bt_token(card_number: str = "4242424242424242", expiration_year: str = "2030", expiration_month: str = "03", cvc: str = "100"):
     """Create a Basis Theory token for testing."""
     configuration = Configuration(
         api_key=os.getenv('BASISTHEORY_API_KEY')
@@ -63,7 +62,7 @@ async def create_bt_token(card_number: str = "4242424242424242", expiration_year
         })
         return token.id
 
-async def create_bt_token_intent(card_number: str = "4242424242424242", cvc: str = "737"):
+def create_bt_token_intent(card_number: str = "4242424242424242", cvc: str = "737"):
     """Create a Basis Theory token for testing."""
     import requests
 
@@ -99,10 +98,9 @@ def get_sdk(processing_channel = os.getenv('CHECKOUT_PROCESSING_CHANNEL'), priva
         }
     })  
 
-@pytest.mark.asyncio
-async def test_storing_card_on_file():
+def test_storing_card_on_file():
     # Create a Basis Theory token
-    token_id = await create_bt_token()
+    token_id = create_bt_token()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk()
@@ -137,7 +135,7 @@ async def test_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -171,10 +169,9 @@ async def test_storing_card_on_file():
     assert response.created_at is not None
 
 
-@pytest.mark.asyncio
-async def test_not_storing_card_on_file():
+def test_not_storing_card_on_file():
     # Create a Basis Theory token
-    token_id = await create_bt_token()
+    token_id = create_bt_token()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk()
@@ -197,7 +194,7 @@ async def test_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -227,10 +224,9 @@ async def test_not_storing_card_on_file():
     assert response.network_transaction_id is not None
     assert len(response.network_transaction_id) > 0
 
-@pytest.mark.asyncio
-async def test_with_three_ds():
+def test_with_three_ds():
     # Create a Basis Theory token
-    token_id = await create_bt_token("4242424242424242")
+    token_id = create_bt_token("4242424242424242")
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -267,7 +263,7 @@ async def test_with_three_ds():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -298,10 +294,9 @@ async def test_with_three_ds():
     assert isinstance(response.network_transaction_id, str)
     assert len(response.network_transaction_id) > 0
 
-@pytest.mark.asyncio
-async def test_error_expired_card():
+def test_error_expired_card():
     # Create a Basis Theory token
-    token_id = await create_bt_token("4724117215951699", "2024", "03", "100")
+    token_id = create_bt_token("4724117215951699", "2024", "03", "100")
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -334,7 +329,7 @@ async def test_error_expired_card():
 
     # Make the transaction request and expect a TransactionError
     with pytest.raises(TransactionError) as exc_info:
-        await sdk.checkout.create_transaction(transaction_request)
+        sdk.checkout.create_transaction(transaction_request)
 
     # Get the error response from the exception
     error_response = exc_info.value.error_response
@@ -358,10 +353,9 @@ async def test_error_expired_card():
     assert error_response.full_provider_response['error_type'] == 'processing_error'
     assert error_response.full_provider_response['error_codes'] == ['card_expired']
 
-@pytest.mark.asyncio
-async def test_error_invalid_api_key():
+def test_error_invalid_api_key():
     # Create a Basis Theory token
-    token_id = await create_bt_token()
+    token_id = create_bt_token()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk('invalid', 'nope');
@@ -389,7 +383,7 @@ async def test_error_invalid_api_key():
 
     # Make the transaction request and expect a TransactionError
     with pytest.raises(TransactionError) as exc_info:
-        await sdk.checkout.create_transaction(transaction_request)
+        sdk.checkout.create_transaction(transaction_request)
 
     # Get the error response from the exception
     error_response = exc_info.value.error_response
@@ -410,10 +404,9 @@ async def test_error_invalid_api_key():
     # Verify full provider response
     assert error_response.full_provider_response is None
 
-@pytest.mark.asyncio
-async def test_token_intents_charge_not_storing_card_on_file(): 
+def test_token_intents_charge_not_storing_card_on_file(): 
     # Create a Basis Theory token
-    token_intent_id = await create_bt_token_intent()
+    token_intent_id = create_bt_token_intent()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -437,7 +430,7 @@ async def test_token_intents_charge_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -467,10 +460,9 @@ async def test_token_intents_charge_not_storing_card_on_file():
     assert response.network_transaction_id is not None
     assert len(response.network_transaction_id) > 0
 
-@pytest.mark.asyncio
-async def test_processor_token_charge_not_storing_card_on_file(): 
+def test_processor_token_charge_not_storing_card_on_file(): 
     # Create a Basis Theory token
-    token_intent_id = await create_bt_token_intent()
+    token_intent_id = create_bt_token_intent()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -502,7 +494,7 @@ async def test_processor_token_charge_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
 
     token_id = response.source.provisioned.id
 
@@ -522,7 +514,7 @@ async def test_processor_token_charge_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -555,10 +547,9 @@ async def test_processor_token_charge_not_storing_card_on_file():
     assert len(response.network_transaction_id) > 0
 
 
-@pytest.mark.asyncio
-async def test_partial_refund():
+def test_partial_refund():
    # Create a Basis Theory token
-    token_intent_id = await create_bt_token_intent()
+    token_intent_id = create_bt_token_intent()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -582,7 +573,7 @@ async def test_partial_refund():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
     
     refund_request = RefundRequest(
         original_transaction_id=response.id,
@@ -591,16 +582,15 @@ async def test_partial_refund():
     )
 
     # Process the refund
-    refund_response = await sdk.checkout.refund_transaction(refund_request)
+    refund_response = sdk.checkout.refund_transaction(refund_request)
 
     # Verify refund succeeded
     assert refund_response.reference == refund_request.reference
     assert refund_response.status.code == TransactionStatusCode.RECEIVED
 
-@pytest.mark.asyncio
-async def test_failed_refund():
+def test_failed_refund():
    # Create a Basis Theory token
-    token_intent_id = await create_bt_token_intent()
+    token_intent_id = create_bt_token_intent()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -624,7 +614,7 @@ async def test_failed_refund():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
     
     refund_request = RefundRequest(
         original_transaction_id=response.id,
@@ -633,7 +623,7 @@ async def test_failed_refund():
     )
     # Process the refund and expect a TransactionError
     with pytest.raises(TransactionError) as exc_info:
-        await sdk.checkout.refund_transaction(refund_request)
+        sdk.checkout.refund_transaction(refund_request)
 
     # Get the error response from the exception
     error_response = exc_info.value.error_response
@@ -643,10 +633,9 @@ async def test_failed_refund():
     assert error_response.error_codes[0].code == 'refund_declined'
 
 
-@pytest.mark.asyncio
-async def test_failed_refund_amount_exceeds_balance():
+def test_failed_refund_amount_exceeds_balance():
    # Create a Basis Theory token
-    token_intent_id = await create_bt_token_intent()
+    token_intent_id = create_bt_token_intent()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -670,7 +659,7 @@ async def test_failed_refund_amount_exceeds_balance():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
     
     refund_request = RefundRequest(
         original_transaction_id=response.id,
@@ -679,7 +668,7 @@ async def test_failed_refund_amount_exceeds_balance():
     )
     # Process the refund and expect a TransactionError
     with pytest.raises(TransactionError) as exc_info:
-        await sdk.checkout.refund_transaction(refund_request)
+        sdk.checkout.refund_transaction(refund_request)
 
     # Get the error response from the exception
     error_response = exc_info.value.error_response
@@ -689,14 +678,14 @@ async def test_failed_refund_amount_exceeds_balance():
     assert error_response.error_codes[0].code == 'refund_amount_exceeds_balance'
 
 
-async def run_transactions_for_list(channel, transactions):
+def run_transactions_for_list(channel, transactions):
     sdk = get_sdk(channel)
 
    # Process each transaction
     for tx_data in transactions:
         print(f"Processing transaction: {tx_data['card_number']}")
         # Create a Basis Theory token for each card number
-        token_id = await create_bt_token_intent(tx_data['card_number'], tx_data['cvc'])
+        token_id = create_bt_token_intent(tx_data['card_number'], tx_data['cvc'])
 
         # Convert amount to cents (multiply by 100 and round)
         amount_cents = round(tx_data['amount'] * 100)
@@ -732,7 +721,7 @@ async def run_transactions_for_list(channel, transactions):
         }
 
         # Make the transaction request
-        response = await sdk.checkout.create_transaction(transaction_request)
+        response = sdk.checkout.create_transaction(transaction_request)
         print(f"Response for reference {tx_data['reference']}: {response}")
 
         # Validate response structure
@@ -746,16 +735,15 @@ async def run_transactions_for_list(channel, transactions):
                 'amount': round(tx_data['refund']['amount'] * 100)
             }
             
-            refund_response = await sdk.checkout.refund_transaction(response['id'], refund_request)   
+            refund_response = sdk.checkout.refund_transaction(response['id'], refund_request)   
             print(f"Refund response for reference {tx_data['reference']}: {refund_response}")
 
             assert 'reference' in refund_response
             assert refund_response['reference'] == refund_request['reference']
 
 
-# @pytest.mark.asyncio
 @pytest.mark.skip(reason="Skipping test_run_checkout_verification")
-async def test_run_checkout_verification():
+def test_run_checkout_verification():
     # Test data for multiple transactions
     from faker import Faker
 
@@ -931,6 +919,6 @@ async def test_run_checkout_verification():
     ]
 
     # Initialize the SDK with environment variables
-    await run_transactions_for_list(us_processing_channel, us_transactions)
-    await run_transactions_for_list(eu_processing_channel, eu_transactions)
+    run_transactions_for_list(us_processing_channel, us_transactions)
+    run_transactions_for_list(eu_processing_channel, eu_transactions)
 
