@@ -75,7 +75,7 @@ sdk.[provider].transaction(TransactionRequest(
 |-----------|------|----------|---------|-------------|
 | reference | str | Yes | - | Unique transaction reference |
 | type | RecurringType | Yes | - | Transaction type |
-| amount | Amount | Yes | - | Transaction amount |
+| amount | Amount | Yes | - | Transaction amount in minor currency units |
 | source | Source | Yes | - | Payment source |
 | customer | Customer | No | None | Customer information |
 | three_ds | ThreeDS | No | None | 3DS authentication data |
@@ -90,7 +90,7 @@ sdk.[provider].transaction(TransactionRequest(
 |----------|------|---------|-------------|
 | id | str | None | Unique identifier for the transaction |
 | reference | str | None | Reference identifier provided in the request |
-| amount | Amount | None | Amount details of the transaction |
+| amount | Amount | None | Transaction amount in minor currency units |
 | status | TransactionStatus | None | Current status of the transaction |
 | source | TransactionSource | None | Source payment method details |
 | fullProviderResponse | Dict[str, Any] | None | Complete response from the payment provider |
