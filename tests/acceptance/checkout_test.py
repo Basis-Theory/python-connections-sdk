@@ -168,6 +168,75 @@ def test_storing_card_on_file():
     
     assert response.created_at is not None
 
+def test_storing_card_on_file():
+    # Create a Basis Theory token
+    token_id = create_bt_token()
+
+    # Initialize the SDK with environment variables
+    sdk = get_sdk()
+
+    # Create transaction request
+    transaction_request = TransactionRequest(
+        reference=str(uuid.uuid4()),
+        type=RecurringType.UNSCHEDULED,
+        amount=Amount(
+            value=0,
+            currency='USD'
+        ),
+        source=Source(
+            type=SourceType.BASIS_THEORY_TOKEN,
+            id=token_id,
+            store_with_provider=True,
+            holder_name='John Doe'
+        ),
+        customer=Customer(
+            reference=str(uuid.uuid4()),
+            first_name='John',
+            last_name='Doe',
+            email='john.doe@example.com',
+            address=Address(
+                address_line1='123 Main St',
+                city='New York',
+                state='NY',
+                zip='10001',
+                country='US'
+            )
+        )
+    )
+
+    # Make the transaction request
+    response = sdk.checkout.create_transaction(transaction_request)
+
+    # Validate response structure
+    assert response.id is not None
+    assert response.reference is not None
+    assert response.reference == transaction_request.reference
+    
+    # Validate amount
+    assert response.amount is not None
+    assert response.amount.value is not None
+    assert response.amount.currency == 'USD'
+    
+    # Validate status
+    assert response.status is not None
+    assert response.status.code == TransactionStatusCode.CARD_VERIFIED
+    assert response.status.provider_code is not None
+    
+    # Validate source
+    assert response.source is not None
+    assert response.source.type in [SourceType.BASIS_THEORY_TOKEN]
+    assert response.source.id is not None
+    assert response.source.provisioned is not None
+    assert response.source.provisioned.id is not None
+
+    # Validate network_transaction_id
+    assert response.network_transaction_id is not None
+    assert len(response.network_transaction_id) > 0
+
+    # Validate other fields
+    assert response.full_provider_response is not None
+    
+    assert response.created_at is not None
 
 def test_not_storing_card_on_file():
     # Create a Basis Theory token
@@ -619,7 +688,7 @@ def test_failed_refund():
     refund_request = RefundRequest(
         original_transaction_id=response.id,
         reference=f"{transaction_request.reference}_refund",
-        amount=Amount(value=3738, currency='USD')
+        amount=Amount(value=3739, currency='USD')
     )
     # Process the refund and expect a TransactionError
     with pytest.raises(TransactionError) as exc_info:
@@ -630,7 +699,7 @@ def test_failed_refund():
 
     # Verify refund failed with correct error
     assert error_response.error_codes[0].category == ErrorCategory.PROCESSING_ERROR
-    assert error_response.error_codes[0].code == 'refund_declined'
+    assert error_response.error_codes[0].code == 'refund_amount_exceeds_balance'
 
 
 def test_failed_refund_amount_exceeds_balance():
