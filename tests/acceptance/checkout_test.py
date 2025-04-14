@@ -168,7 +168,7 @@ def test_storing_card_on_file():
     
     assert response.created_at is not None
 
-def test_storing_card_on_file():
+def test_storing_card_on_file_zero_dollar_amount():
     # Create a Basis Theory token
     token_id = create_bt_token()
 
