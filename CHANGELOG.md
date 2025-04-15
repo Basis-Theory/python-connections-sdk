@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v1.0.0...v1.1.0) (2025-04-15)
+
+
+### Features
+
+* fixing gap to allow 0 amounts ([#38](https://github.com/Basis-Theory/python-connections-sdk/issues/38)) ([d10b087](https://github.com/Basis-Theory/python-connections-sdk/commit/d10b087b7fc4fcc640ef12eb1543a10f180258c5))
+
 # [1.0.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v0.1.0...v1.0.0) (2025-03-12)
 
 
