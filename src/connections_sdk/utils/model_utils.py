@@ -23,7 +23,7 @@ def validate_required_fields(data: TransactionRequest) -> None:
     Raises:
         ValidationError: If required fields are missing
     """
-    if not data.amount or not data.amount.value:
+    if data.amount is None or data.amount.value is None:
         raise ValidationError("amount.value is required")
     if not data.source or not data.source.type or not data.source.id:
         raise ValidationError("source.type and source.id are required")

@@ -283,8 +283,6 @@ class CheckoutClient:
         if request.override_provider_properties:
             payload = always_merger.merge(payload, request.override_provider_properties)
 
-        print(f"Payload: {json.dumps(payload, indent=2)}")
-
         return payload
 
     def _transform_checkout_response(self, response_data: Dict[str, Any], request: TransactionRequest) -> TransactionResponse:
