@@ -24,7 +24,7 @@ from connections_sdk import Connections
 from connections_sdk.models import RecurringType
 
 # Initialize the SDK with your chosen provider
-sdk = Connections.init({
+sdk = Connections({
     'is_test': True,  # Use test environment
     'bt_api_key': 'YOUR_BASIS_THEORY_API_KEY',
     'provider_config': {

@@ -25,18 +25,11 @@ class ProviderConfig:
 
 
 class Connections:
-    _instance: Optional['Connections'] = None
-
-    def __init__(self) -> None:
+    def __init__(self, config: Dict[str, Any]) -> None:
+        """Initialize the Connections SDK with the provided configuration."""
         self.is_test: bool = False
         self.bt_api_key: str = ""
         self.provider_config: Optional[ProviderConfig] = None
-
-    @classmethod
-    def init(cls, config: Dict[str, Any]) -> 'Connections':
-        """Initialize the Connections SDK with the provided configuration."""
-        if cls._instance is None:
-            cls._instance = cls()
 
         if 'is_test' not in config:
             config['is_test'] = False
@@ -45,17 +38,16 @@ class Connections:
         if 'provider_config' not in config:
             raise ConfigurationError("'provider_config' parameter is required")
 
-        instance = cast(Connections, cls._instance)
-        instance.is_test = config['is_test']
-        instance.bt_api_key = config['bt_api_key']
+        self.is_test = config['is_test']
+        self.bt_api_key = config['bt_api_key']
 
         provider_config = config['provider_config']
-        instance.provider_config = ProviderConfig()
+        self.provider_config = ProviderConfig()
 
         # Initialize Adyen configuration if provided
         if 'adyen' in provider_config:
             adyen_config = provider_config.get('adyen')
-            instance.provider_config.adyen = AdyenConfig(
+            self.provider_config.adyen = AdyenConfig(
                 api_key=adyen_config.get('api_key'),
                 merchant_account=adyen_config.get('merchant_account'),
                 production_prefix=adyen_config.get('production_prefix', "")
@@ -64,19 +56,10 @@ class Connections:
         # Initialize Checkout.com configuration if provided
         if 'checkout' in provider_config:
             checkout_config = provider_config.get('checkout')
-            instance.provider_config.checkout = CheckoutConfig(
+            self.provider_config.checkout = CheckoutConfig(
                 private_key=checkout_config.get('private_key'),
                 processing_channel=checkout_config.get('processing_channel')
             )
-
-        return instance
-
-    @classmethod
-    def get_instance(cls) -> 'Connections':
-        """Get the initialized SDK instance."""
-        if cls._instance is None:
-            raise ConfigurationError("Connections must be initialized with init() before use")
-        return cls._instance
 
     @property
     def adyen(self) -> AdyenClient:

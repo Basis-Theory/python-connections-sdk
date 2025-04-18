@@ -69,7 +69,7 @@ def test_errors():
     ]
 
     # Initialize the SDK
-    sdk = Connections.init({
+    sdk = Connections({
         'is_test': True,
         'bt_api_key': 'test_bt_api_key',
         'provider_config': {
