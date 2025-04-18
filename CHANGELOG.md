@@ -1,3 +1,20 @@
+# [2.0.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v1.1.0...v2.0.0) (2025-04-18)
+
+
+### Bug Fixes
+
+* fixing build pipeline versions ([#40](https://github.com/Basis-Theory/python-connections-sdk/issues/40)) ([fea59c5](https://github.com/Basis-Theory/python-connections-sdk/commit/fea59c579fee900854c3d7653a9fe7a65ab181a0))
+
+
+### Features
+
+* removing singleton to avoid shared state ([#39](https://github.com/Basis-Theory/python-connections-sdk/issues/39)) ([50023b0](https://github.com/Basis-Theory/python-connections-sdk/commit/50023b0a5c4806f612271bb3a82cd3a13aee19b3))
+
+
+### BREAKING CHANGES
+
+* Moving from `Connections.init(...)` to `Connections(...)` to load SDK config
+
 # [1.1.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v1.0.0...v1.1.0) (2025-04-15)
 
 
