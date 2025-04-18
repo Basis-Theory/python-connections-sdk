@@ -5,7 +5,7 @@
 Initialize the SDK with configuration options.
 
 ```python
-sdk = Connections.init({
+sdk = Connections({
     'is_test': bool,
     'bt_api_key': str,
     'provider_config': {

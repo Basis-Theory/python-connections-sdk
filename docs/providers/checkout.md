@@ -7,7 +7,7 @@ This guide explains how to use Checkout.com as a payment provider with the Conne
 Configure Checkout.com in the SDK initialization, for additional information on initializing the SDK see the [API Reference](../api-reference.md#sdk-initialization).
 
 ```python
-sdk = Connections.init({
+sdk = Connections({
     'is_test': True,  # Set to False for production
     'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
     'provider_config': {

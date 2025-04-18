@@ -87,7 +87,7 @@ def create_bt_token_intent(card_number: str = "4242424242424242", cvc: str = "73
     return response_data['id']
 
 def get_sdk(processing_channel = os.getenv('CHECKOUT_PROCESSING_CHANNEL'), private_key = os.getenv('CHECKOUT_PRIVATE_KEY')):
-    return Connections.init({
+    return Connections({
         'is_test': True,
         'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
         'provider_config': {

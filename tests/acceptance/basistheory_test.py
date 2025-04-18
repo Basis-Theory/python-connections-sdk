@@ -26,7 +26,7 @@ load_dotenv()
 
 def test_error_invalid_api_key():
     # Initialize the SDK with environment variables
-    sdk = Connections.init({
+    sdk = Connections({
         'is_test': True,
         'bt_api_key': "invalid",
         'provider_config': {

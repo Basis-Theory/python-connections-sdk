@@ -38,7 +38,7 @@ from connections_sdk import Connections
 load_dotenv()
 
 # Initialize the SDK with your chosen provider
-sdk = Connections.init({
+sdk = Connections({
     'is_test': True,
     'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
     'provider_config': {
@@ -67,7 +67,7 @@ load_dotenv()
 
 async def process_payment():
     # Initialize the SDK with your chosen provider
-    sdk = Connections.init({
+    sdk = Connections({
         'is_test': True,
         'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
         'provider_config': {

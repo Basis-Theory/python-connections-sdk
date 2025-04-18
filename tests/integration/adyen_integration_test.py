@@ -18,6 +18,27 @@ from connections_sdk.models import (
 )
 from connections_sdk.exceptions import TransactionError
 
+
+def test_singleton_does_not_reset_adyen_merchant_account():
+    valid_config = {
+        'bt_api_key': 'some_api_key',
+        'is_test': False,
+        'provider_config': {
+            'adyen': {
+                'api_key': 'some_adyen_api_key',
+                'merchant_account': 'merchant_account_1'
+            }
+        }
+    }
+    connections_1 = Connections(valid_config)
+    
+    valid_config['provider_config']['adyen']['merchant_account'] = 'merchant_account_2'
+    connections_2 = Connections(valid_config)
+    
+    # Assert that the adyen.merchant_account has not been reset to 'merchant_account_2'
+    assert connections_1.adyen.merchant_account != connections_2.adyen.merchant_account, f"Connections should not match"
+
+
 def test_errors():
     # Define test cases mapping
     test_cases = [
@@ -68,7 +89,7 @@ def test_errors():
     ]
 
     # Initialize the SDK
-    sdk = Connections.init({
+    sdk = Connections({
         'is_test': True,
         'bt_api_key': 'test_bt_api_key',
         'provider_config': {

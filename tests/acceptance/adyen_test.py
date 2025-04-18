@@ -78,7 +78,7 @@ def create_bt_token_intent(card_number: str = "4111111145551142"):
     return response_data['id']
 
 def get_sdk(api_key = os.getenv('ADYEN_API_KEY'), merchant_account = os.getenv('ADYEN_MERCHANT_ACCOUNT')):
-    return Connections.init({
+    return Connections({
         'is_test': True,
         'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
         'provider_config': {
@@ -88,6 +88,8 @@ def get_sdk(api_key = os.getenv('ADYEN_API_KEY'), merchant_account = os.getenv('
             }
         }
     })
+
+
 
 def test_storing_card_on_file():
     # Create a Basis Theory token
