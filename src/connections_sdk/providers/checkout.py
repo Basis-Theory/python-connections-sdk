@@ -268,15 +268,34 @@ class CheckoutClient:
 
         # Add 3DS information if provided
         if request.three_ds:
-            three_ds_data: Dict[str, str] = {}
-            if request.three_ds.eci:
-                three_ds_data["eci"] = request.three_ds.eci
+            three_ds_data: Dict[str, Any] = {
+                "enabled": True
+            }
+
             if request.three_ds.authentication_value:
                 three_ds_data["cryptogram"] = request.three_ds.authentication_value
-            if request.three_ds.xid:
-                three_ds_data["xid"] = request.three_ds.xid
-            if request.three_ds.version:
-                three_ds_data["version"] = request.three_ds.version
+            if request.three_ds.eci:
+                three_ds_data["eci"] = request.three_ds.eci
+            if request.three_ds.threeds_version or request.three_ds.version: # threeds_version from API, fallback to version
+                three_ds_data["version"] = request.three_ds.threeds_version or request.three_ds.version
+            if request.three_ds.ds_transaction_id: # ds_transaction_id in BT, xid in Checkout
+                three_ds_data["xid"] = request.three_ds.ds_transaction_id
+            if request.three_ds.authentication_status_code:
+                three_ds_data["status"] = request.three_ds.authentication_status_code
+            if request.three_ds.authentication_status_reason or request.three_ds.authentication_status_reason_code:
+                three_ds_data["status_reason_code"] = request.three_ds.authentication_status_reason or request.three_ds.authentication_status_reason_code
+            
+            if request.three_ds.challenge_preference_code:
+                challenge_indicator_mapping = {
+                    "no-preference": "no_preference",
+                    "no-challenge": "no_challenge_requested",
+                    "challenge-requested": "challenge_requested",
+                    "challenge-mandated": "challenge_requested_mandate"
+                }
+                checkout_challenge_indicator = challenge_indicator_mapping.get(request.three_ds.challenge_preference_code)
+                if checkout_challenge_indicator: # Only add if a valid mapping exists
+                    three_ds_data["challenge_indicator"] = checkout_challenge_indicator
+
             payload["3ds"] = three_ds_data
 
         # Override/merge any provider properties if specified

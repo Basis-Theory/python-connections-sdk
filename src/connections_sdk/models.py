@@ -133,8 +133,17 @@ class StatementDescription:
 class ThreeDS:
     eci: Optional[str] = None
     authentication_value: Optional[str] = None
-    xid: Optional[str] = None
     version: Optional[str] = None
+    ds_transaction_id: Optional[str] = None
+    directory_status_code: Optional[str] = None
+    authentication_status_code: Optional[str] = None
+    challenge_cancel_reason_code: Optional[str] = None
+    challenge_preference_code: Optional[str] = None
+    authentication_status_reason_code: Optional[str] = None
+
+    # API aligned fields (preferred)
+    threeds_version: Optional[str] = None
+    authentication_status_reason: Optional[str] = None
 
 
 @dataclass

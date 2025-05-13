@@ -206,22 +206,32 @@ class AdyenClient:
 
         # Map 3DS information
         if request.three_ds:
-            three_ds_data: Dict[str, str] = {}
-
-            if request.three_ds.eci:
-                three_ds_data["eci"] = request.three_ds.eci
+            mpi_data: Dict[str, Any] = {}
+            three_ds_2_request_data: Dict[str, Any] = {}
 
             if request.three_ds.authentication_value:
-                three_ds_data["authenticationValue"] = request.three_ds.authentication_value
+                mpi_data["cavv"] = request.three_ds.authentication_value
+            if request.three_ds.eci:
+                mpi_data["eci"] = request.three_ds.eci
+            if request.three_ds.ds_transaction_id:
+                mpi_data["dsTransId"] = request.three_ds.ds_transaction_id # Corrected casing from dsTransID to dsTransId
+            if request.three_ds.directory_status_code:
+                mpi_data["directoryResponse"] = request.three_ds.directory_status_code
+            if request.three_ds.authentication_status_code:
+                mpi_data["authenticationResponse"] = request.three_ds.authentication_status_code
+            if request.three_ds.threeds_version or request.three_ds.version: # threeds_version from API, fallback to version
+                mpi_data["threeDSVersion"] = request.three_ds.threeds_version or request.three_ds.version
+            if request.three_ds.challenge_cancel_reason_code:
+                mpi_data["challengeCancel"] = request.three_ds.challenge_cancel_reason_code
+            
+            if mpi_data:
+                payload["mpiData"] = mpi_data
 
-            if request.three_ds.xid:
-                three_ds_data["xid"] = request.three_ds.xid
+            if request.three_ds.challenge_preference_code:
+                three_ds_2_request_data["threeDSRequestorChallengeInd"] = request.three_ds.challenge_preference_code
 
-            if request.three_ds.version:
-                three_ds_data["threeDSVersion"] = request.three_ds.version
-
-            if three_ds_data:
-                payload["additionalData"] = {"threeDSecure": three_ds_data}
+            if three_ds_2_request_data:
+                payload["threeDS2RequestData"] = three_ds_2_request_data
 
         # Override/merge any provider properties if specified
         if request.override_provider_properties:

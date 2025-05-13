@@ -57,9 +57,10 @@ sdk.[provider].transaction(TransactionRequest(
     ),
     three_ds=ThreeDS(
         eci='05',
-        authentication_value='AAABCZIhcQAAAABZlyFxAAAAAAA=',
-        xid='MDAwMDAwMDAwMDAwMDAwMDAwMDE=',
-        version='2.2.0'
+        authentication_value='YOUR_3DS_AUTH_VALUE',
+        threeds_version='2.2.0',
+        ds_transaction_id='YOUR_DS_TRANSACTION_ID',
+        authentication_status_code='Y'
     ),
     override_provider_properties={
         'additionalData': {
@@ -193,12 +194,17 @@ sdk.[provider].refund_transaction(RefundRequest(
 
 ### ThreeDS
 
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| eci | str | None | Electronic Commerce Indicator value from 3DS authentication |
-| authentication_value | str | None | Authentication value/CAVV from 3DS authentication |
-| xid | str | None | Transaction identifier from 3DS authentication |
-| version | str | None | Version of 3DS protocol used (e.g. "2.2.0") |
+| Property                       | Type   | Default | Description                                                              |
+|--------------------------------|--------|---------|--------------------------------------------------------------------------|
+| eci                            | str    | None    | Electronic Commerce Indicator value from 3DS authentication.             |
+| authentication_value           | str    | None    | Authentication value/CAVV from 3DS authentication.                       |
+| threeds_version                | str    | None    | Version of 3DS protocol used (e.g., "2.2.0").                            |
+| ds_transaction_id              | str    | None    | Transaction ID from the 3DS Directory Server (DS).                       |
+| directory_status_code          | str    | None    | EMV character code for the directory authentication status.                |
+| authentication_status_code     | str    | None    | EMV character code for the authentication status.                        |
+| challenge_cancel_reason_code   | str    | None    | EMV numeric code for the challenge cancel reason.                        |
+| challenge_preference_code      | str    | None    | EMV numeric code for the selected challenge preference.                    |
+| authentication_status_reason   | str    | None    | Additional information about the authentication status if necessary.       |
 
 
 ## Response Models
