@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v2.0.0...v2.1.0) (2025-05-13)
+
+
+### Features
+
+* 3DS enhancements ([#41](https://github.com/Basis-Theory/python-connections-sdk/issues/41)) ([784abd5](https://github.com/Basis-Theory/python-connections-sdk/commit/784abd5fa6d3cc8028cbb52d1491ba2af4d146b4))
+
 # [2.0.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v1.1.0...v2.0.0) (2025-04-18)
 
 
