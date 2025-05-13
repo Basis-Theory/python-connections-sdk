@@ -83,7 +83,6 @@ class RequestClient:
     
             raise BasisTheoryError(error_response, response.status_code)
 
-        print(f"Response: {response.json()}")
         # Raise for other HTTP errors
         response.raise_for_status()
         
