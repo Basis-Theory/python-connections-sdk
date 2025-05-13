@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Any, Dict, List
+from typing import Optional, Any, Dict, List, Literal
 from datetime import datetime
 
 
@@ -121,6 +121,7 @@ class Customer:
     last_name: Optional[str] = None
     email: Optional[str] = None
     address: Optional[Address] = None
+    channel: Optional[Literal['ios', 'android', 'web']] = 'web'
 
 
 @dataclass

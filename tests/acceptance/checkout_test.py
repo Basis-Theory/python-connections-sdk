@@ -329,10 +329,10 @@ def test_with_three_ds():
             version='2.2.0',
             ds_transaction_id='AAABCZIhcQAAAABZlyFxAAAAAAA=',
             directory_status_code='sample_directory_status_code',
-            authentication_status_code='sample_auth_status_code',
+            authentication_status_code='Y',
             challenge_cancel_reason_code='sample_cancel_reason',
             challenge_preference_code='sample_preference_code',
-            authentication_status_reason_code='sample_auth_status_reason_code',
+            authentication_status_reason_code='01',
             threeds_version='2.2.0',
             authentication_status_reason='sample_auth_status_reason'
         )

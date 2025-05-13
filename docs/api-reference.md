@@ -53,7 +53,8 @@ sdk.[provider].transaction(TransactionRequest(
             state='NY',
             zip='10001',
             country='US'
-        )
+        ),
+        channel='web'
     ),
     three_ds=ThreeDS(
         eci='05',
@@ -180,6 +181,7 @@ sdk.[provider].refund_transaction(RefundRequest(
 | last_name | str | None | Customer's last name |
 | email | str | None | Customer's email address |
 | address | Address | None | Customer's address details |
+| channel | Literal['ios', 'android', 'web'] | 'web' | Customer's channel a.k.a device type. |
 
 ### Address
 

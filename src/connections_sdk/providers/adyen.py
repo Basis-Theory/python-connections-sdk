@@ -121,6 +121,7 @@ class AdyenClient:
             "merchantAccount": self.merchant_account,
             "shopperInteraction": "ContAuth" if request.merchant_initiated else "Ecommerce",
             "storePaymentMethod": request.source.store_with_provider,
+            "channel": request.customer.channel
         }
 
         if request.metadata:

@@ -282,8 +282,8 @@ class CheckoutClient:
                 three_ds_data["xid"] = request.three_ds.ds_transaction_id
             if request.three_ds.authentication_status_code:
                 three_ds_data["status"] = request.three_ds.authentication_status_code
-            if request.three_ds.authentication_status_reason or request.three_ds.authentication_status_reason_code:
-                three_ds_data["status_reason_code"] = request.three_ds.authentication_status_reason or request.three_ds.authentication_status_reason_code
+            if request.three_ds.authentication_status_reason_code:
+                three_ds_data["status_reason_code"] = request.three_ds.authentication_status_reason_code
             
             if request.three_ds.challenge_preference_code:
                 challenge_indicator_mapping = {
