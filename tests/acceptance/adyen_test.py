@@ -246,7 +246,14 @@ def test_with_three_ds():
             eci='05',
             authentication_value='AAABCZIhcQAAAABZlyFxAAAAAAA=',
             ds_transaction_id='AAABCZIhcQAAAABZlyFxAAAAAAA=',
-            threeds_version='2.2.0'
+            threeds_version='2.2.0',
+            version='2.2.0', # Fallback
+            directory_status_code='sample_directory_status_code',
+            authentication_status_code='sample_auth_status_code',
+            challenge_cancel_reason_code='sample_cancel_reason',
+            challenge_preference_code='sample_preference_code',
+            authentication_status_reason_code='sample_auth_status_reason_code', # Fallback
+            authentication_status_reason='sample_auth_status_reason'
         )
     )
 
