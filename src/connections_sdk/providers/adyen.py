@@ -214,7 +214,7 @@ class AdyenClient:
             if request.three_ds.eci:
                 mpi_data["eci"] = request.three_ds.eci
             if request.three_ds.ds_transaction_id:
-                mpi_data["dsTransId"] = request.three_ds.ds_transaction_id # Corrected casing from dsTransID to dsTransId
+                mpi_data["dsTransID"] = request.three_ds.ds_transaction_id
             if request.three_ds.directory_status_code:
                 mpi_data["directoryResponse"] = request.three_ds.directory_status_code
             if request.three_ds.authentication_status_code:

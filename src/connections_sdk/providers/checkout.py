@@ -372,6 +372,8 @@ class CheckoutClient:
         # Transform request to Checkout.com format
         payload = self._transform_to_checkout_payload(request_data)
         
+        print(f"Payload: {payload}")
+
         # Set up common headers
         headers = {
             "Authorization": f"Bearer {self.api_key}",

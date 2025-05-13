@@ -245,8 +245,8 @@ def test_with_three_ds():
         three_ds=ThreeDS(
             eci='05',
             authentication_value='AAABCZIhcQAAAABZlyFxAAAAAAA=',
-            xid='AAABCZIhcQAAAABZlyFxAAAAAAA=',
-            version='2.2.0'
+            ds_transaction_id='AAABCZIhcQAAAABZlyFxAAAAAAA=',
+            threeds_version='2.2.0'
         )
     )
 
