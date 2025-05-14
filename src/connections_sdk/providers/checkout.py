@@ -169,6 +169,183 @@ ERROR_CODE_MAPPING = {
     "refund_authorization_declined": ErrorType.REFUND_DECLINED
 }
 
+# Mapping of Checkout.com numerical response codes to our error types
+CHECKOUT_NUMERICAL_CODE_MAPPING = {
+    # 20xxx Series - Generally Soft Declines / Informational
+    "20001": ErrorType.REFERRAL,  # Refer to card issuer
+    "20002": ErrorType.REFERRAL,  # Refer to card issuer - Special conditions
+    "20003": ErrorType.CONFIGURATION_ERROR,  # Invalid merchant or service provider
+    "20004": ErrorType.BLOCKED_CARD,  # Card should be captured
+    "20005": ErrorType.REFUSED,  # Declined - Do not honour
+    "20006": ErrorType.OTHER,  # Error / Invalid request parameters
+    "20009": ErrorType.OTHER,  # Request in progress (treating as a final decline state if listed as error)
+    "20012": ErrorType.OTHER,  # Invalid transaction
+    "20013": ErrorType.INVALID_AMOUNT,  # Invalid value/amount
+    "20014": ErrorType.INVALID_CARD,  # Invalid account number (no such number)
+    "20015": ErrorType.NOT_SUPPORTED, # Transaction cannot be processed through debit network
+    "20016": ErrorType.RESTRICTED_CARD,  # Card not initialised
+    "20017": ErrorType.PAYMENT_CANCELLED_BY_CONSUMER,  # Customer cancellation
+    "20018": ErrorType.OTHER, # Customer dispute (more of a post-transaction event, but if it's an error code at payment time)
+    "20019": ErrorType.PAYMENT_CANCELLED, # Re-enter transaction Transaction has expired
+    "20020": ErrorType.OTHER,  # Invalid response
+    "20021": ErrorType.OTHER,  # No action taken (unable to back out prior transaction)
+    "20022": ErrorType.ACQUIRER_ERROR,  # Suspected malfunction
+    "20023": ErrorType.OTHER,  # Unacceptable transaction fee
+    "20024": ErrorType.NOT_SUPPORTED, # File update not supported by the receiver
+    "20025": ErrorType.OTHER, # Unable to locate record on file Account number is missing from the inquiry
+    "20026": ErrorType.OTHER, # Duplicate file update record
+    "20027": ErrorType.OTHER, # File update field edit error
+    "20028": ErrorType.OTHER, # File is temporarily unavailable
+    "20029": ErrorType.OTHER, # File update not successful
+    "20030": ErrorType.OTHER,  # Format error
+    "20031": ErrorType.NOT_SUPPORTED,  # Bank not supported by Switch
+    "20032": ErrorType.OTHER, # Completed partially (typically a success state, but if listed as error)
+    "20033": ErrorType.OTHER, # Previous scheme transaction ID invalid
+    "20038": ErrorType.PIN_TRIES_EXCEEDED,  # Allowable PIN tries exceeded
+    "20039": ErrorType.INVALID_CARD,  # No credit account
+    "20040": ErrorType.NOT_SUPPORTED,  # Requested function not supported
+    "20042": ErrorType.INVALID_AMOUNT, # No universal value/amount
+    "20044": ErrorType.INVALID_CARD, # No investment account
+    "20045": ErrorType.NOT_SUPPORTED, # The Issuer does not support fallback transactions of hybrid-card
+    "20046": ErrorType.BANK_ERROR,  # Bank decline
+    "20051": ErrorType.INSUFFICENT_FUNDS,  # Insufficient funds
+    "20052": ErrorType.INVALID_CARD,  # No current (checking) account
+    "20053": ErrorType.INVALID_CARD,  # No savings account
+    "20054": ErrorType.EXPIRED_CARD,  # Expired card
+    "20055": ErrorType.INVALID_PIN,  # Incorrect PIN PIN validation not possible
+    "20056": ErrorType.INVALID_CARD,  # No card record
+    "20057": ErrorType.NOT_SUPPORTED,  # Transaction not permitted to cardholder
+    "20058": ErrorType.NOT_SUPPORTED,  # Transaction not permitted to terminal
+    "20059": ErrorType.FRAUD,  # Suspected fraud
+    "20060": ErrorType.REFERRAL,  # Card acceptor contact acquirer
+    "20061": ErrorType.INSUFFICENT_FUNDS,  # Activity amount limit exceeded
+    "20062": ErrorType.RESTRICTED_CARD,  # Restricted card
+    "20063": ErrorType.FRAUD,  # Security violation
+    "20064": ErrorType.OTHER, # Transaction does not fulfil AML requirement
+    "20065": ErrorType.INSUFFICENT_FUNDS,  # Exceeds Withdrawal Frequency Limit
+    "20066": ErrorType.REFERRAL,  # Card acceptor call acquirer security
+    "20067": ErrorType.BLOCKED_CARD,  # Hard capture - Pick up card at ATM
+    "20068": ErrorType.ACQUIRER_ERROR,  # Response received too late / Timeout
+    "20072": ErrorType.RESTRICTED_CARD, # Account not yet activated
+    "20075": ErrorType.PIN_TRIES_EXCEEDED,  # Allowable PIN-entry tries exceeded
+    "20078": ErrorType.BLOCKED_CARD,  # Blocked at first use
+    "20081": ErrorType.NOT_SUPPORTED, # Card is local use only
+    "20082": ErrorType.CVC_INVALID,  # No security model / Negative CAM, dCVV, iCVV, or CVV results
+    "20083": ErrorType.INVALID_CARD, # No accounts
+    "20084": ErrorType.OTHER, # No PBF
+    "20085": ErrorType.OTHER, # PBF update error
+    "20086": ErrorType.ACQUIRER_ERROR,  # ATM malfunction Invalid authorization type
+    "20087": ErrorType.INVALID_CARD,  # Bad track data (invalid CVV and/or expiry date)
+    "20088": ErrorType.OTHER, # Unable to dispense/process
+    "20089": ErrorType.OTHER, # Administration error
+    "20090": ErrorType.ACQUIRER_ERROR,  # Cut-off in progress
+    "20091": ErrorType.BANK_ERROR,  # Issuer unavailable or switch is inoperative
+    "20092": ErrorType.ACQUIRER_ERROR,  # Destination cannot be found for routing
+    "20093": ErrorType.NOT_SUPPORTED,  # Transaction cannot be completed; violation of law
+    "20094": ErrorType.OTHER,  # Duplicate transmission / invoice
+    "20095": ErrorType.OTHER,  # Reconcile error
+    "20096": ErrorType.ACQUIRER_ERROR,  # System malfunction
+    "20097": ErrorType.OTHER, # Reconciliation totals reset
+    "20098": ErrorType.OTHER, # MAC error
+    "20099": ErrorType.OTHER,  # Other / Unidentified responses
+    "20197": ErrorType.OTHER,  # Catch-all for many sub-errors like CVV2 failure, transaction not supported. Mapping to OTHER due to its composite nature.
+    "20100": ErrorType.INVALID_CARD,  # Invalid expiry date format
+    "20101": ErrorType.INVALID_SOURCE_TOKEN, # No Account / No Customer (Token is incorrect or invalid)
+    "20102": ErrorType.CONFIGURATION_ERROR,  # Invalid merchant / wallet ID
+    "20103": ErrorType.NOT_SUPPORTED,  # Card type / payment method not supported
+    "20104": ErrorType.OTHER,  # Gateway reject - Invalid transaction
+    "20105": ErrorType.OTHER,  # Gateway reject - Violation
+    "20106": ErrorType.NOT_SUPPORTED,  # Unsupported currency
+    "20107": ErrorType.OTHER,  # Billing address is missing (Could be AVS_DECLINE if validation fails, but often a data validation before submission)
+    "20108": ErrorType.REFUSED, # Declined - Updated cardholder available
+    "20109": ErrorType.OTHER,  # Transaction already reversed (voided) Capture is larger than initial authorized value
+    "20110": ErrorType.OTHER, # Authorization completed (Not an error, but if returned in error context)
+    "20111": ErrorType.OTHER,  # Transaction already reversed
+    "20112": ErrorType.CONFIGURATION_ERROR,  # Merchant not Mastercard SecureCode enabled
+    "20113": ErrorType.OTHER, # Invalid property
+    "20114": ErrorType.INVALID_SOURCE_TOKEN,  # Token is incorrect
+    "20115": ErrorType.OTHER, # Missing / Invalid lifetime
+    "20116": ErrorType.OTHER, # Invalid encoding
+    "20117": ErrorType.CONFIGURATION_ERROR,  # Invalid API version
+    "20118": ErrorType.OTHER,  # Transaction pending
+    "20119": ErrorType.OTHER, # Invalid batch data and/or batch data is missing
+    "20120": ErrorType.OTHER, # Invalid customer/user
+    "20121": ErrorType.OTHER, # Transaction limit for merchant/terminal exceeded
+    "20122": ErrorType.NOT_SUPPORTED, # Mastercard installments not supported
+    "20123": ErrorType.OTHER, # Missing basic data: zip, addr, member
+    "20124": ErrorType.CVC_INVALID,  # Missing CVV value, required for ecommerce transaction
+    "20150": ErrorType.AUTHENTICATION_FAILURE,  # Card not 3D Secure (3DS) enabled
+    "20151": ErrorType.AUTHENTICATION_FAILURE,  # Cardholder failed 3DS authentication
+    "20152": ErrorType.AUTHENTICATION_FAILURE,  # Initial 3DS transaction not completed within 15 minutes
+    "20153": ErrorType.AUTHENTICATION_FAILURE,  # 3DS system malfunction
+    "20154": ErrorType.AUTHENTICATION_REQUIRED,  # 3DS authentication required
+    "20155": ErrorType.AUTHENTICATION_FAILURE, # 3DS authentication service provided invalid authentication result
+    "20156": ErrorType.NOT_SUPPORTED, # Requested function not supported by the acquirer
+    "20157": ErrorType.CONFIGURATION_ERROR, # Invalid merchant configurations - Contact Support
+    "20158": ErrorType.OTHER, # Refund validity period has expired
+    "20159": ErrorType.AUTHENTICATION_FAILURE, # ACS Malfunction
+    "20179": ErrorType.INVALID_CARD, # Lifecycle (Occurs when transaction has invalid card data)
+    "20182": ErrorType.NOT_SUPPORTED, # Policy (Occurs when a transaction does not comply with card policy)
+    "20183": ErrorType.FRAUD, # Security (Occurs when a transaction is suspected to be fraudulent)
+    "20193": ErrorType.OTHER, # Invalid country code
+
+    # 30xxx Series - Hard Declines
+    "30004": ErrorType.BLOCKED_CARD,  # Pick up card (No fraud)
+    "30007": ErrorType.BLOCKED_CARD,  # Pick up card - Special conditions
+    "30015": ErrorType.INVALID_CARD,  # No such issuer
+    "30016": ErrorType.NOT_SUPPORTED, # Issuer does not allow online gambling payout
+    "30017": ErrorType.NOT_SUPPORTED,  # Issuer does not allow original credit transaction
+    "30018": ErrorType.NOT_SUPPORTED, # Issuer does not allow money transfer payout
+    "30019": ErrorType.NOT_SUPPORTED, # Issuer does not allow non-money transfer payout
+    "30020": ErrorType.INVALID_AMOUNT,  # Invalid amount
+    "30021": ErrorType.INSUFFICENT_FUNDS,  # Total amount limit reached
+    "30022": ErrorType.OTHER,  # Total transaction count limit reached
+    "30033": ErrorType.EXPIRED_CARD,  # Expired card - Pick up
+    "30034": ErrorType.FRAUD,  # Suspected fraud - Pick up
+    "30035": ErrorType.REFERRAL,  # Contact acquirer - Pick up
+    "30036": ErrorType.RESTRICTED_CARD,  # Restricted card - Pick up
+    "30037": ErrorType.REFERRAL,  # Call acquirer security - Pick up
+    "30038": ErrorType.PIN_TRIES_EXCEEDED,  # Allowable PIN tries exceeded - Pick up
+    "30041": ErrorType.BLOCKED_CARD,  # Lost card - Pick up
+    "30043": ErrorType.FRAUD,  # Stolen card - Pick up
+    "30044": ErrorType.NOT_SUPPORTED, # Transaction rejected - AMLD5
+    "30045": ErrorType.NOT_SUPPORTED, # Invalid payout fund transfer type
+    "30046": ErrorType.INVALID_CARD,  # Closed account
+
+    # 4xxxx Series - Risk Responses
+    "40101": ErrorType.FRAUD,  # Risk blocked transaction
+    "40201": ErrorType.FRAUD,  # Gateway reject - card number blocklist
+    "40202": ErrorType.FRAUD,  # Gateway reject - IP address blocklist
+    "40203": ErrorType.FRAUD,  # Gateway reject - email blocklist
+    "40204": ErrorType.FRAUD,  # Gateway reject - phone number blocklist
+    "40205": ErrorType.FRAUD,  # Gateway Reject - BIN number blocklist
+    "41101": ErrorType.FRAUD,  # Risk Blocked Transaction (Client-level rule)
+    "41201": ErrorType.FRAUD,  # Decline list - Card number (Client-level)
+    "41202": ErrorType.FRAUD,  # Decline list - BIN (Client-level)
+    "41203": ErrorType.FRAUD,  # Decline list - Email address (Client-level)
+    "41204": ErrorType.FRAUD,  # Decline list - Phone (Client-level)
+    "41205": ErrorType.FRAUD,  # Decline list - Payment IP (Client-level) - using client as first seen
+    "41206": ErrorType.FRAUD,  # Decline list - Email domain (Client-level)
+    "41301": ErrorType.FRAUD,  # Fraud score exceeds threshold (Client-level)
+    "42101": ErrorType.FRAUD,  # Risk Blocked Transaction (Entity-level rule)
+    "42201": ErrorType.FRAUD,  # Decline list - Card number (Client-level)
+    "42202": ErrorType.FRAUD,  # Decline list - BIN (Client-level)
+    "42203": ErrorType.FRAUD,  # Decline list - Email address (Client-level)
+    "42204": ErrorType.FRAUD,  # Decline list - Phone (Client-level)
+    "42206": ErrorType.FRAUD,  # Decline list - Email domain (Client-level)
+    "42301": ErrorType.FRAUD,  # Fraud score exceeds threshold
+    "43101": ErrorType.FRAUD,  # Potential fraud risk
+    "43102": ErrorType.FRAUD,  # Risk blocked transaction – {Rule group name} (Checkout.com-level)
+    "43201": ErrorType.FRAUD,  # Decline list - Card number (Checkout.com-level)
+    "43202": ErrorType.FRAUD,  # Decline list - BIN (Checkout.com-level)
+    "43203": ErrorType.FRAUD,  # Decline list - Email address (Checkout.com-level)
+    "43204": ErrorType.FRAUD,  # Decline list - Phone (Checkout.com-level)
+    "43205": ErrorType.FRAUD,  # Decline list - Payment IP (Checkout.com-level)
+    "43206": ErrorType.FRAUD,  # Decline list - Email domain (Checkout.com-level)
+    "43301": ErrorType.FRAUD,  # Fraud score exceeds threshold (Checkout.com-level)
+    "44301": ErrorType.AUTHENTICATION_REQUIRED,  # 3DS authentication required
+}
+
 
 class CheckoutClient:
     def __init__(self, private_key: str, processing_channel: str, is_test: bool, bt_api_key: str):
@@ -325,11 +502,19 @@ class CheckoutClient:
     def _transform_error_response_object(self, response, error_data=None) -> ErrorResponse:
         """Transform error response from Checkout.com to SDK format."""
         error_codes = []
+        provider_errors = error_data.get('error_codes', []) if error_data else []
         
         if response.status_code == 401:
             error_codes.append(self._get_error_code_object(ErrorType.INVALID_API_KEY))
         elif response.status_code == 403:
             error_codes.append(self._get_error_code_object(ErrorType.UNAUTHORIZED))
+        elif response.status_code == 404:
+            error_codes.append(self._get_error_code_object(ErrorType.REFUND_FAILED))
+        elif response.ok and error_data.get("status") == "Declined":
+            response_code = error_data.get("response_code")
+            mapped_error = CHECKOUT_NUMERICAL_CODE_MAPPING.get(response_code, ErrorType.OTHER)
+            error_codes.append(self._get_error_code_object(mapped_error))
+            provider_errors.append(response_code)
         elif error_data is not None:
             for error_code in error_data.get('error_codes', []):
                 mapped_error = ERROR_CODE_MAPPING.get(error_code, ErrorType.OTHER)
@@ -342,7 +527,7 @@ class CheckoutClient:
         
         return ErrorResponse(
             error_codes=error_codes,
-            provider_errors=error_data.get('error_codes', []) if error_data else [],
+            provider_errors=provider_errors,
             full_provider_response=error_data
         )
 
@@ -368,6 +553,13 @@ class CheckoutClient:
                 data=payload,
                 use_bt_proxy=request_data.source.type != SourceType.PROCESSOR_TOKEN
             )
+
+            response_data = response.json()
+
+             # Check if it's an error response (non-200 status code or Adyen error)
+            if not response.ok or response_data.get("status") in ["Declined"]:
+                raise TransactionError(self._transform_error_response_object(response, response_data))
+            
         except requests.exceptions.HTTPError as e:
             # Check if this is a BT error
             if hasattr(e, 'bt_error_response'):
