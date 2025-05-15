@@ -244,8 +244,8 @@ class AdyenClient:
                 provider_code=str(response_data.get("resultCode"))
             ),
             response_code=ResponseCode(
-                category=ERROR_CODE_MAPPING.get(response_data.get("refusalReasonCode"), ErrorType.OTHER).category,
-                code=ERROR_CODE_MAPPING.get(response_data.get("refusalReasonCode"), ErrorType.OTHER).code
+                category=ERROR_CODE_MAPPING.get(str(response_data.get("refusalReasonCode")), ErrorType.OTHER).category,
+                code=ERROR_CODE_MAPPING.get(str(response_data.get("refusalReasonCode")), ErrorType.OTHER).code
             ),
             source=TransactionSource(
                 type=request.source.type,

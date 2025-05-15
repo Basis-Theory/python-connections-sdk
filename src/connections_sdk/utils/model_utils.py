@@ -8,9 +8,21 @@ from ..models import (
     Address,
     StatementDescription,
     ThreeDS,
-    RecurringType
+    RecurringType,
+    ErrorType,
+    ErrorResponse,
+    ErrorCode
 )
 from ..exceptions import ValidationError
+
+def _error_code(error_type: ErrorType) -> ErrorCode:
+    """
+    Validate the amount in a transaction request.
+    """
+    return ErrorCode(
+        category=error_type.category,
+        code=error_type.code
+    )
 
 
 def validate_required_fields(data: TransactionRequest) -> None:
@@ -24,9 +36,17 @@ def validate_required_fields(data: TransactionRequest) -> None:
         ValidationError: If required fields are missing
     """
     if data.amount is None or data.amount.value is None:
-        raise ValidationError("amount.value is required")
+        raise ValidationError(ErrorResponse(
+            error_codes=[_error_code(ErrorType.INVALID_AMOUNT)],
+            provider_errors=[],
+            full_provider_response={}
+        ))
     if not data.source or not data.source.type or not data.source.id:
-        raise ValidationError("source.type and source.id are required")
+        raise ValidationError(ErrorResponse(
+            error_codes=[_error_code(ErrorType.INVALID_SOURCE_TOKEN)],
+            provider_errors=[],
+            full_provider_response={}
+        ))
 
 
 def create_transaction_request(data: Dict[str, Any]) -> TransactionRequest:

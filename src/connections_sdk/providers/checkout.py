@@ -463,18 +463,21 @@ class CheckoutClient:
 
         return payload
 
-    def _transform_checkout_response(self, response_data: Dict[str, Any], request: TransactionRequest, error_data: Dict[str, Any] = None) -> TransactionResponse:
+    def _transform_checkout_response(self, response_data: Dict[str, Any], request: TransactionRequest, error_data: Optional[Dict[str, Any]] = None) -> TransactionResponse:
         """Transform Checkout.com response to our standardized format."""
         response_code = ResponseCode(
-            category=CHECKOUT_NUMERICAL_CODE_MAPPING.get(response_data.get("response_code"), ErrorType.OTHER).category,
-            code=CHECKOUT_NUMERICAL_CODE_MAPPING.get(response_data.get("response_code"), ErrorType.OTHER).code
+            category=CHECKOUT_NUMERICAL_CODE_MAPPING.get(str(response_data.get("response_code")), ErrorType.OTHER).category,
+            code=CHECKOUT_NUMERICAL_CODE_MAPPING.get(str(response_data.get("response_code")), ErrorType.OTHER).code
         )
 
-        if error_data:
-            response_code = ResponseCode(
-                category=ERROR_CODE_MAPPING.get(error_data.get("error_codes")[0], ErrorType.OTHER).category,
-                code=ERROR_CODE_MAPPING.get(error_data.get("error_codes")[0], ErrorType.OTHER).code
-            )
+        if error_data and isinstance(error_data, dict):
+            error_codes = error_data.get("error_codes", [])
+            if error_codes and len(error_codes) > 0:
+                first_error = str(error_codes[0])
+                response_code = ResponseCode(
+                    category=ERROR_CODE_MAPPING.get(first_error, ErrorType.OTHER).category,
+                    code=ERROR_CODE_MAPPING.get(first_error, ErrorType.OTHER).code
+                )
 
         return TransactionResponse(
             id=str(response_data.get("id")),
