@@ -26,7 +26,7 @@ def _error_code(error_type: ErrorType) -> ErrorCode:
         code=error_type.code
     )
 
-def _basis_theory_extras(headers: Optional[CaseInsensitiveDict[str]]) -> Optional[BasisTheoryExtras]:
+def _basis_theory_extras(headers: Optional[CaseInsensitiveDict]) -> Optional[BasisTheoryExtras]:
     if headers and "bt-trace-id" in headers:
         return BasisTheoryExtras(
             trace_id=headers.get("bt-trace-id", "")
