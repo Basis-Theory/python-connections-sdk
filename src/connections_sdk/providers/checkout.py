@@ -463,7 +463,7 @@ class CheckoutClient:
 
         return payload
 
-    def _transform_checkout_response(self, response_data: Dict[str, Any], request: TransactionRequest, headers: CaseInsensitiveDict[str], error_data: Optional[Dict[str, Any]] = None) -> TransactionResponse:
+    def _transform_checkout_response(self, response_data: Dict[str, Any], request: TransactionRequest, headers: CaseInsensitiveDict, error_data: Optional[Dict[str, Any]] = None) -> TransactionResponse:
         """Transform Checkout.com response to our standardized format."""
         response_code = ResponseCode(
             category=CHECKOUT_NUMERICAL_CODE_MAPPING.get(str(response_data.get("response_code")), ErrorType.OTHER).category,

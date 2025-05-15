@@ -231,7 +231,7 @@ class AdyenClient:
 
         return payload
 
-    def _transform_adyen_response(self, response_data: Dict[str, Any], request: TransactionRequest, headers: CaseInsensitiveDict[str]) -> TransactionResponse:
+    def _transform_adyen_response(self, response_data: Dict[str, Any], request: TransactionRequest, headers: CaseInsensitiveDict) -> TransactionResponse:
         """Transform Adyen response to our standardized format."""
         transaction_response = TransactionResponse(
             id=str(response_data.get("pspReference")),
@@ -268,7 +268,7 @@ class AdyenClient:
 
         return transaction_response
 
-    def _transform_error_response(self, response: requests.Response, response_data: Dict[str, Any], headers: CaseInsensitiveDict[str]) -> ErrorResponse:
+    def _transform_error_response(self, response: requests.Response, response_data: Dict[str, Any], headers: CaseInsensitiveDict) -> ErrorResponse:
         """Transform error responses to our standardized format.
         
         Args:
