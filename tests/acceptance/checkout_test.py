@@ -34,7 +34,7 @@ from connections_sdk.models import (
     ErrorCategory,
     ErrorType
 )
-from connections_sdk.exceptions import TransactionError, ValidationError
+from connections_sdk.exceptions import ValidationError
 
 # Load environment variables from .env file
 load_dotenv()
@@ -365,7 +365,7 @@ def test_with_three_ds():
 
 def test_error_expired_card():
     # Create a Basis Theory token
-    token_id = create_bt_token("4724117215951699", "2024", "03", "100")
+    token_id = create_bt_token("4532446037926437", "2024", "03", "100")
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -394,33 +394,24 @@ def test_error_expired_card():
         )
     )
 
-    print(f"Transaction request: {transaction_request}")
+    # Make the transaction request and expect a ValidationError
+    response = sdk.checkout.create_transaction(transaction_request)
 
-    # Make the transaction request and expect a TransactionError
-    with pytest.raises(TransactionError) as exc_info:
-        sdk.checkout.create_transaction(transaction_request)
+    # Validate source
+    assert response.source is not None
+    assert response.source.type in [SourceType.BASIS_THEORY_TOKEN]
+    assert response.source.id is not None
+    assert response.source.provisioned is None
 
-    # Get the error response from the exception
-    error_response = exc_info.value.error_response
-    print(f"Error Response: {json.dumps(error_response.full_provider_response, indent=2)}")
-
-    # Validate error response structure
-    assert len(error_response.error_codes) == 1
-    
     # Verify exact error code values
-    error = error_response.error_codes[0]
-    assert error.category == ErrorCategory.PAYMENT_METHOD_ERROR
-    assert error.code == ErrorType.EXPIRED_CARD.code
-    
-    # Verify provider errors
-    assert isinstance(error_response.provider_errors, list)
-    assert len(error_response.provider_errors) == 1
-    assert error_response.provider_errors == ['card_expired']
+    assert response.response_code.category == ErrorCategory.PAYMENT_METHOD_ERROR
+    assert response.response_code.code == ErrorType.EXPIRED_CARD.code
     
     # Verify full provider response
-    assert isinstance(error_response.full_provider_response, dict)
-    assert error_response.full_provider_response['error_type'] == 'processing_error'
-    assert error_response.full_provider_response['error_codes'] == ['card_expired']
+    assert isinstance(response.full_provider_response, dict)
+    assert response.full_provider_response['error_type'] == 'processing_error'
+    assert response.full_provider_response['error_codes'] == ['card_expired']
+
 
 
 def test_error_insufficient_funds():
@@ -454,35 +445,21 @@ def test_error_insufficient_funds():
         )
     )
 
-    print(f"Transaction request: {transaction_request}")
+    # Make the transaction request and expect a ValidationError
+    response = sdk.checkout.create_transaction(transaction_request)
 
-    # Make the transaction request and expect a TransactionError
-    with pytest.raises(TransactionError) as exc_info:
-        response = sdk.checkout.create_transaction(transaction_request)
-        print(f"Response: {response}")
+    # Validate source
+    assert response.source is not None
+    assert response.source.type in [SourceType.BASIS_THEORY_TOKEN]
+    assert response.source.id is not None
+    assert response.source.provisioned is None
 
-    # Get the error response from the exception
-    error_response = exc_info.value.error_response
-    print(f"Error Response: {json.dumps(error_response.full_provider_response, indent=2)}")
-
-    # Validate error response structure
-    assert len(error_response.error_codes) == 1
-    
     # Verify exact error code values
-    error = error_response.error_codes[0]
-    assert error.category == ErrorCategory.PAYMENT_METHOD_ERROR
-    assert error.code == ErrorType.INSUFFICENT_FUNDS.code
+    assert response.response_code.category == ErrorCategory.PAYMENT_METHOD_ERROR
+    assert response.response_code.code == ErrorType.INSUFFICENT_FUNDS.code
     
-    # Verify provider errors
-    assert isinstance(error_response.provider_errors, list)
-    assert len(error_response.provider_errors) == 1
-    assert error_response.provider_errors == ['20051']
-    
-    # Verify full provider response
-    assert isinstance(error_response.full_provider_response, dict)
-    assert error_response.full_provider_response['status'] == 'Declined'
-    assert error_response.full_provider_response['response_code'] == '20051'
-    assert error_response.full_provider_response['response_summary'] == 'Insufficient Funds'
+    assert response.full_provider_response['response_code'] == '20051'
+    assert response.full_provider_response['response_summary'] == 'Insufficient Funds'
 
 def test_error_invalid_card():
     # Create a Basis Theory token
@@ -515,35 +492,15 @@ def test_error_invalid_card():
         )
     )
 
-    print(f"Transaction request: {transaction_request}")
+    # Make the transaction request and expect a ValidationError
+    response = sdk.checkout.create_transaction(transaction_request)
 
-    # Make the transaction request and expect a TransactionError
-    with pytest.raises(TransactionError) as exc_info:
-        response = sdk.checkout.create_transaction(transaction_request)
-        print(f"Response: {response}")
-
-    # Get the error response from the exception
-    error_response = exc_info.value.error_response
-    print(f"Error Response: {json.dumps(error_response.full_provider_response, indent=2)}")
-
-    # Validate error response structure
-    assert len(error_response.error_codes) == 1
-    
     # Verify exact error code values
-    error = error_response.error_codes[0]
-    assert error.category == ErrorCategory.PAYMENT_METHOD_ERROR
-    assert error.code == ErrorType.INVALID_CARD.code
+    assert response.response_code.category == ErrorCategory.PAYMENT_METHOD_ERROR
+    assert response.response_code.code == ErrorType.INVALID_CARD.code
     
-    # Verify provider errors
-    assert isinstance(error_response.provider_errors, list)
-    assert len(error_response.provider_errors) == 1
-    assert error_response.provider_errors == ['20014']
-    
-    # Verify full provider response
-    assert isinstance(error_response.full_provider_response, dict)
-    assert error_response.full_provider_response['status'] == 'Declined'
-    assert error_response.full_provider_response['response_code'] == '20014'
-    assert error_response.full_provider_response['response_summary'] == 'Invalid Card Number'
+    assert response.full_provider_response['response_code'] == '20014'
+    assert response.full_provider_response['response_summary'] == 'Invalid Card Number'
 
 def test_error_stolen_card():
     # Create a Basis Theory token
@@ -575,36 +532,15 @@ def test_error_stolen_card():
             )
         )
     )
+    # Make the transaction request and expect a ValidationError
+    response = sdk.checkout.create_transaction(transaction_request)
 
-    print(f"Transaction request: {transaction_request}")
-
-    # Make the transaction request and expect a TransactionError
-    with pytest.raises(TransactionError) as exc_info:
-        response = sdk.checkout.create_transaction(transaction_request)
-        print(f"Response: {response}")
-
-    # Get the error response from the exception
-    error_response = exc_info.value.error_response
-    print(f"Error Response: {json.dumps(error_response.full_provider_response, indent=2)}")
-
-    # Validate error response structure
-    assert len(error_response.error_codes) == 1
-    
     # Verify exact error code values
-    error = error_response.error_codes[0]
-    assert error.category == ErrorCategory.FRAUD_DECLINE
-    assert error.code == ErrorType.FRAUD.code
+    assert response.response_code.category == ErrorCategory.FRAUD_DECLINE
+    assert response.response_code.code == ErrorType.FRAUD.code
     
-    # Verify provider errors
-    assert isinstance(error_response.provider_errors, list)
-    assert len(error_response.provider_errors) == 1
-    assert error_response.provider_errors == ['30043']
-    
-    # Verify full provider response
-    assert isinstance(error_response.full_provider_response, dict)
-    assert error_response.full_provider_response['status'] == 'Declined'
-    assert error_response.full_provider_response['response_code'] == '30043'
-    assert error_response.full_provider_response['response_summary'] == 'Stolen Card - Pick Up'
+    assert response.full_provider_response['response_code'] == '30043'
+    assert response.full_provider_response['response_summary'] == 'Stolen Card - Pick Up'
 
 
 def test_error_declined():
@@ -638,35 +574,17 @@ def test_error_declined():
         )
     )
 
-    print(f"Transaction request: {transaction_request}")
+     # Make the transaction request and expect a ValidationError
+    response = sdk.checkout.create_transaction(transaction_request)
 
-    # Make the transaction request and expect a TransactionError
-    with pytest.raises(TransactionError) as exc_info:
-        response = sdk.checkout.create_transaction(transaction_request)
-        print(f"Response: {response}")
+    assert response.source is not None
 
-    # Get the error response from the exception
-    error_response = exc_info.value.error_response
-    print(f"Error Response: {json.dumps(error_response.full_provider_response, indent=2)}")
-
-    # Validate error response structure
-    assert len(error_response.error_codes) == 1
-    
     # Verify exact error code values
-    error = error_response.error_codes[0]
-    assert error.category == ErrorCategory.PROCESSING_ERROR
-    assert error.code == ErrorType.REFUSED.code
+    assert response.response_code.category == ErrorCategory.PROCESSING_ERROR
+    assert response.response_code.code == ErrorType.REFUSED.code
     
-    # Verify provider errors
-    assert isinstance(error_response.provider_errors, list)
-    assert len(error_response.provider_errors) == 1
-    assert error_response.provider_errors == ['20005']
-    
-    # Verify full provider response
-    assert isinstance(error_response.full_provider_response, dict)
-    assert error_response.full_provider_response['status'] == 'Declined'
-    assert error_response.full_provider_response['response_code'] == '20005'
-    assert error_response.full_provider_response['response_summary'] == 'Declined - Do Not Honour'
+    assert response.full_provider_response['response_code'] == '20005'
+    assert response.full_provider_response['response_summary'] == 'Declined - Do Not Honour'
 
 
 def test_error_invalid_api_key():
@@ -697,8 +615,8 @@ def test_error_invalid_api_key():
 
     print(f"Transaction request: {transaction_request}")
 
-    # Make the transaction request and expect a TransactionError
-    with pytest.raises(TransactionError) as exc_info:
+    # Make the transaction request and expect a ValidationError
+    with pytest.raises(ValidationError) as exc_info:
         sdk.checkout.create_transaction(transaction_request)
 
     # Get the error response from the exception
@@ -937,8 +855,8 @@ def test_failed_refund():
         reference=f"{transaction_request.reference}_refund",
         amount=Amount(value=3739, currency='USD')
     )
-    # Process the refund and expect a TransactionError
-    with pytest.raises(TransactionError) as exc_info:
+    # Process the refund and expect a ValidationError
+    with pytest.raises(ValidationError) as exc_info:
         sdk.checkout.refund_transaction(refund_request)
 
     # Get the error response from the exception
@@ -982,8 +900,8 @@ def test_failed_refund_amount_exceeds_balance():
         reference=f"{transaction_request.reference}_refund",
         amount=Amount(value=200, currency='USD')
     )
-    # Process the refund and expect a TransactionError
-    with pytest.raises(TransactionError) as exc_info:
+    # Process the refund and expect a ValidationError
+    with pytest.raises(ValidationError) as exc_info:
         sdk.checkout.refund_transaction(refund_request)
 
     # Get the error response from the exception

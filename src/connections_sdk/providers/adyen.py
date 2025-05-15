@@ -22,11 +22,12 @@ from ..models import (
     ErrorCode,
     TransactionResponse,
     TransactionSource,
-    ProvisionedSource
+    ProvisionedSource,
+    ResponseCode
 )
 from ..utils.model_utils import create_transaction_request, validate_required_fields
 from ..utils.request_client import RequestClient
-from ..exceptions import TransactionError
+from ..exceptions import ValidationError
 
 
 RECURRING_TYPE_MAPPING = {
@@ -235,12 +236,16 @@ class AdyenClient:
             id=str(response_data.get("pspReference")),
             reference=str(response_data.get("merchantReference")),
             amount=Amount(
-                value=int(response_data.get("amount", {}).get("value")),
-                currency=str(response_data.get("amount", {}).get("currency"))
+                value=int(response_data.get("amount", {}).get("value", request.amount.value)),
+                currency=str(response_data.get("amount", {}).get("currency", request.amount.currency))
             ),
             status=TransactionStatus(
                 code=self._get_status_code(response_data.get("resultCode")),
                 provider_code=str(response_data.get("resultCode"))
+            ),
+            response_code=ResponseCode(
+                category=ERROR_CODE_MAPPING.get(response_data.get("refusalReasonCode"), ErrorType.OTHER).category,
+                code=ERROR_CODE_MAPPING.get(response_data.get("refusalReasonCode"), ErrorType.OTHER).code
             ),
             source=TransactionSource(
                 type=request.source.type,
@@ -276,10 +281,6 @@ class AdyenClient:
             error_type = ErrorType.INVALID_API_KEY
         elif response.status_code == 403:
             error_type = ErrorType.UNAUTHORIZED
-        # Handle Adyen-specific error codes for declined transactions
-        elif response_data.get("resultCode") in ["Refused", "Error", "Cancelled"]:
-            refusal_code = response_data.get("refusalReasonCode", "")
-            error_type = ERROR_CODE_MAPPING.get(refusal_code, ErrorType.OTHER)
         else:
             error_type = ErrorType.OTHER
 
@@ -320,10 +321,6 @@ class AdyenClient:
 
             response_data = response.json()
 
-            # Check if it's an error response (non-200 status code or Adyen error)
-            if not response.ok or response_data.get("resultCode") in ["Refused", "Error", "Cancelled"]:
-                raise TransactionError(self._transform_error_response(response, response_data))
-
             # Transform the successful response to our format
             return self._transform_adyen_response(response_data, request_data)
 
@@ -333,7 +330,7 @@ class AdyenClient:
             except:
                 error_data = None
 
-            raise TransactionError(self._transform_error_response(e.response, error_data))
+            raise ValidationError(self._transform_error_response(e.response, error_data))
 
 
     def refund_transaction(self, refund_request: RefundRequest) -> RefundResponse:
@@ -401,5 +398,5 @@ class AdyenClient:
             except:
                 error_data = None
 
-            raise TransactionError(self._transform_error_response(e.response, error_data))
+            raise ValidationError(self._transform_error_response(e.response, error_data))
 

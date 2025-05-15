@@ -25,7 +25,7 @@ When a transaction fails, the SDK raises an exception with the following structu
 
 | Exception | Has ErrorResponse | Description |
 |-----------|------------------|-------------|
-| `TransactionError` | Yes | Raised when a payment transaction fails. Contains the standardized error response with error codes and provider details. |
+| `ValidationError` | Yes | Raised when a payment transaction fails. Contains the standardized error response with error codes and provider details. |
 | `ValidationError` | No | Raised when request validation fails, such as missing required fields. |
 | `ConfigurationError` | No | Raised when SDK configuration is invalid, such as missing API keys or invalid settings. |
 | `BasisTheoryError` | Yes | Raised when there is an error interacting with Basis Theory services. Contains error response and HTTP status. |

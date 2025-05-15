@@ -1,14 +1,11 @@
 from connections_sdk.models import ErrorResponse
 
-class TransactionError(Exception):
+class ValidationError(Exception):
+    """Raised when request validation fails."""
     error_response: ErrorResponse
     def __init__(self, error_response: 'ErrorResponse'):
         self.error_response = error_response
         super().__init__(str(error_response.error_codes))
-
-class ValidationError(Exception):
-    """Raised when request validation fails."""
-    pass
 
 class ConfigurationError(Exception):
     """Raised when SDK configuration is invalid."""

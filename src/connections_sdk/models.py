@@ -175,6 +175,10 @@ class TransactionSource:
     id: str
     provisioned: Optional[ProvisionedSource] = None
 
+@dataclass
+class ResponseCode:
+    category: str
+    code: str
 
 @dataclass
 class TransactionResponse:
@@ -182,6 +186,7 @@ class TransactionResponse:
     reference: str
     amount: Amount
     status: TransactionStatus
+    response_code: ResponseCode
     source: TransactionSource
     full_provider_response: Dict[str, Any]
     created_at: datetime

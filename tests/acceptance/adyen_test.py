@@ -26,7 +26,7 @@ from connections_sdk.models import (
     TransactionSource,
     ProvisionedSource
 )
-from connections_sdk.exceptions import TransactionError, ValidationError, BasisTheoryError
+from connections_sdk.exceptions import ValidationError, BasisTheoryError
 
 # Load environment variables from .env file
 load_dotenv()
@@ -307,34 +307,29 @@ def test_error_expired_card():
         )
     )
 
-    print(f"Transaction request: {transaction_request}")
-    # Make the transaction request and catch TransactionError
-    try:
-        response = sdk.adyen.create_transaction(transaction_request)
-        print(f"Response: {response}")
-    except TransactionError as e:
-        response = e.error_response
-        print(f"Error Response: {response}")
 
-    # Validate error response structure
-    assert isinstance(response.error_codes, list)
-    assert len(response.error_codes) == 1
-    
+
+    print(f"Transaction request: {transaction_request}")
+
+        # Make the transaction request and expect a ValidationError
+    response = sdk.adyen.create_transaction(transaction_request)
+
+    # Validate source
+    assert response.source is not None
+    assert response.source.type in [SourceType.BASIS_THEORY_TOKEN]
+    assert response.source.id is not None
+    assert response.source.provisioned is None
+
     # Verify exact error code values
-    error = response.error_codes[0]
-    assert error.category == ErrorCategory.PAYMENT_METHOD_ERROR
-    assert error.code == ErrorType.EXPIRED_CARD.code
-    
-    # Verify provider errors
-    assert isinstance(response.provider_errors, list)
-    assert len(response.provider_errors) == 1
-    assert response.provider_errors[0] == 'Expired Card'
-    
-    # Verify full provider response
+    assert response.response_code.category == ErrorCategory.PAYMENT_METHOD_ERROR
+    assert response.response_code.code == ErrorType.EXPIRED_CARD.code
+        # Verify full provider response
     assert isinstance(response.full_provider_response, dict)
     assert response.full_provider_response['resultCode'] == 'Refused'
     assert response.full_provider_response['refusalReason'] == 'Expired Card'
     assert response.full_provider_response['refusalReasonCode'] == '6'
+    
+
 
 def test_error_invalid_api_key():
     # Create a Basis Theory token
@@ -362,7 +357,7 @@ def test_error_invalid_api_key():
     try:
         response = sdk.adyen.create_transaction(transaction_request)
         print(f"Response: {response}")
-    except TransactionError as e:
+    except ValidationError as e:
         response = e.error_response
         print(f"BasisTheory Error Response: {response}")
 

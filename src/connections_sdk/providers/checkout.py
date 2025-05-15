@@ -26,9 +26,10 @@ from ..models import (
     ErrorCode,
     TransactionResponse,
     TransactionSource,
-    ProvisionedSource
+    ProvisionedSource,
+    ResponseCode
 )
-from connections_sdk.exceptions import TransactionError
+from connections_sdk.exceptions import ValidationError
 from ..utils.model_utils import create_transaction_request, validate_required_fields
 from ..utils.request_client import RequestClient
 
@@ -462,19 +463,31 @@ class CheckoutClient:
 
         return payload
 
-    def _transform_checkout_response(self, response_data: Dict[str, Any], request: TransactionRequest) -> TransactionResponse:
+    def _transform_checkout_response(self, response_data: Dict[str, Any], request: TransactionRequest, error_data: Dict[str, Any] = None) -> TransactionResponse:
         """Transform Checkout.com response to our standardized format."""
+        response_code = ResponseCode(
+            category=CHECKOUT_NUMERICAL_CODE_MAPPING.get(response_data.get("response_code"), ErrorType.OTHER).category,
+            code=CHECKOUT_NUMERICAL_CODE_MAPPING.get(response_data.get("response_code"), ErrorType.OTHER).code
+        )
+
+        if error_data:
+            response_code = ResponseCode(
+                category=ERROR_CODE_MAPPING.get(error_data.get("error_codes")[0], ErrorType.OTHER).category,
+                code=ERROR_CODE_MAPPING.get(error_data.get("error_codes")[0], ErrorType.OTHER).code
+            )
+
         return TransactionResponse(
             id=str(response_data.get("id")),
             reference=str(response_data.get("reference")),
             amount=Amount(
-                value=int(str(response_data.get("amount"))),
-                currency=str(response_data.get("currency"))
+                value=int(str(response_data.get("amount", request.amount.value))),
+                currency=str(response_data.get("currency", request.amount.currency))
             ),
             status=TransactionStatus(
-                code=self._get_status_code(response_data.get("status")),
-                provider_code=str(response_data.get("status"))
+                code=self._get_status_code(response_data.get("status", TransactionStatusCode.DECLINED)),
+                provider_code=str(response_data.get("status", ""))
             ),
+            response_code=response_code,
             source=TransactionSource(
                 type=request.source.type,
                 id=request.source.id,
@@ -510,11 +523,6 @@ class CheckoutClient:
             error_codes.append(self._get_error_code_object(ErrorType.UNAUTHORIZED))
         elif response.status_code == 404:
             error_codes.append(self._get_error_code_object(ErrorType.REFUND_FAILED))
-        elif response.ok and error_data.get("status") == "Declined":
-            response_code = error_data.get("response_code")
-            mapped_error = CHECKOUT_NUMERICAL_CODE_MAPPING.get(response_code, ErrorType.OTHER)
-            error_codes.append(self._get_error_code_object(mapped_error))
-            provider_errors.append(response_code)
         elif error_data is not None:
             for error_code in error_data.get('error_codes', []):
                 mapped_error = ERROR_CODE_MAPPING.get(error_code, ErrorType.OTHER)
@@ -556,9 +564,7 @@ class CheckoutClient:
 
             response_data = response.json()
 
-             # Check if it's an error response (non-200 status code or Adyen error)
-            if not response.ok or response_data.get("status") in ["Declined"]:
-                raise TransactionError(self._transform_error_response_object(response, response_data))
+            print(f"Response data: {response_data}")
             
         except requests.exceptions.HTTPError as e:
             # Check if this is a BT error
@@ -567,10 +573,13 @@ class CheckoutClient:
             
             try:
                 error_data = e.response.json()
+
+                if "card_expired" in error_data.get("error_codes", []) or "card_disabled" in error_data.get("error_codes", []):
+                    return self._transform_checkout_response(error_data, request_data, error_data)
             except:
                 error_data = None
 
-            raise TransactionError(self._transform_error_response_object(e.response, error_data))
+            raise ValidationError(self._transform_error_response_object(e.response, error_data))
 
         # Transform response to SDK format
         return self._transform_checkout_response(response.json(), request_data)
@@ -626,5 +635,5 @@ class CheckoutClient:
             except:
                 error_data = None
 
-            raise TransactionError(self._transform_error_response_object(e.response, error_data))
+            raise ValidationError(self._transform_error_response_object(e.response, error_data))
             
