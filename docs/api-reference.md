@@ -92,6 +92,7 @@ sdk.[provider].transaction(TransactionRequest(
 | reference | str | None | Reference identifier provided in the request |
 | amount | Amount | None | Transaction amount in minor currency units |
 | status | TransactionStatus | None | Current status of the transaction |
+| response_code | ResponseCode | None | Response code of the transaction | 
 | source | TransactionSource | None | Source payment method details |
 | fullProviderResponse | Dict[str, Any] | None | Complete response from the payment provider |
 | createdt | datetime | None | Timestamp when transaction was created |
@@ -240,6 +241,13 @@ sdk.[provider].refund_transaction(RefundRequest(
 | RETURN | Refund for returned goods |
 | DUPLICATE | Refund for a duplicate charge |
 | OTHER | Other reason for refund |
+
+### ResponseCode
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| category | str | None | The category (e.g. "processing_error") |
+| code | str | None | The specific error code (e.g. "insufficient_funds")  |
 
 ## Error Handling
 
