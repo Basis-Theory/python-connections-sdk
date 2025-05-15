@@ -89,7 +89,6 @@ class ErrorType(Enum):
         self.code = code
         self.category = category
 
-
 @dataclass
 class Amount:
     value: int
@@ -180,6 +179,17 @@ class ResponseCode:
     category: str
     code: str
 
+@dataclass 
+class FullProviderResponse:
+    headers: Dict[str, str]
+    body: Dict[str, Any]
+
+
+@dataclass
+class BasisTheoryExtras:
+    trace_id: str
+
+
 @dataclass
 class TransactionResponse:
     id: str
@@ -188,10 +198,10 @@ class TransactionResponse:
     status: TransactionStatus
     response_code: ResponseCode
     source: TransactionSource
-    full_provider_response: Dict[str, Any]
+    full_provider_response: FullProviderResponse
     created_at: datetime
     network_transaction_id: Optional[str] = None 
-
+    basis_theory_extras: Optional[BasisTheoryExtras] = None
 
 @dataclass
 class RefundResponse:
@@ -199,7 +209,7 @@ class RefundResponse:
     reference: str
     amount: Amount
     status: TransactionStatus
-    full_provider_response: Dict[str, Any]
+    full_provider_response: FullProviderResponse
     created_at: datetime
     refunded_transaction_id: Optional[str] = None
 
@@ -212,4 +222,6 @@ class ErrorCode:
 class ErrorResponse:
     error_codes: List[ErrorCode]
     provider_errors: List[str]
-    full_provider_response: Dict[str, Any]
+    full_provider_response: FullProviderResponse
+    basis_theory_extras: Optional[BasisTheoryExtras] = None
+    

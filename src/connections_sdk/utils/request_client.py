@@ -1,7 +1,7 @@
 from typing import Dict, Any, Optional, Union, List, cast
 import requests
 from requests.models import Response
-from ..models import ErrorType, ErrorCode, ErrorResponse
+from ..models import ErrorType, ErrorCode, ErrorResponse, FullProviderResponse
 from connections_sdk.exceptions import BasisTheoryError
 
 class RequestClient:
@@ -44,7 +44,10 @@ class RequestClient:
                 )
             ],
             provider_errors=provider_errors,
-            full_provider_response=response_data
+            full_provider_response=FullProviderResponse(
+                headers=response.headers,
+                body=response_data
+            )
         )
 
     def request(

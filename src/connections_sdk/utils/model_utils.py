@@ -11,7 +11,8 @@ from ..models import (
     RecurringType,
     ErrorType,
     ErrorResponse,
-    ErrorCode
+    ErrorCode,
+    BasisTheoryExtras
 )
 from ..exceptions import TransactionError
 
@@ -24,6 +25,12 @@ def _error_code(error_type: ErrorType) -> ErrorCode:
         code=error_type.code
     )
 
+def _basis_theory_extras(headers: Dict[str, str]) -> Optional[BasisTheoryExtras]:
+    if "bt-trace-id" in headers:
+        return BasisTheoryExtras(
+            trace_id=headers.get("bt-trace-id")
+        )
+    return None
 
 def validate_required_fields(data: TransactionRequest) -> None:
     """

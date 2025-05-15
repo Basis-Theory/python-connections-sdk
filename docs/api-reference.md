@@ -94,9 +94,10 @@ sdk.[provider].transaction(TransactionRequest(
 | status | TransactionStatus | None | Current status of the transaction |
 | response_code | ResponseCode | None | Response code of the transaction | 
 | source | TransactionSource | None | Source payment method details |
-| fullProviderResponse | Dict[str, Any] | None | Complete response from the payment provider |
-| createdt | datetime | None | Timestamp when transaction was created |
+| fullProviderResponse | FullProviderResponse | None | An instance of `FullProviderResponse` containing the detailed response from the payment provider. Access `response.full_provider_response.body` for the body and `response.full_provider_response.headers` for headers. |
+| created_at | datetime | None | Timestamp when transaction was created |
 | network_transaction_id | str | None | Network transaction identifier |
+| basis_theory_extras | BasisTheoryExtras | None | (Optional) Contains additional information from Basis Theory, such as a `trace_id`. |
 
 ## Refund Methods
 
@@ -132,7 +133,7 @@ sdk.[provider].refund_transaction(RefundRequest(
 | amount | Amount | None | Amount details of the refund |
 | status | RefundStatus | None | Current status of the refund |
 | refunded_transaction_id | str | None | ID of the original transaction that was refunded |
-| full_provider_response | Dict[str, Any] | None | Complete response from the payment provider |
+| full_provider_response | FullProviderResponse | None | An instance of `FullProviderResponse` containing the detailed response from the payment provider. Access `response.full_provider_response.body` for the body and `response.full_provider_response.headers` for headers. |
 | created_at | datetime | None | Timestamp when refund was created |
 
 
@@ -248,6 +249,28 @@ sdk.[provider].refund_transaction(RefundRequest(
 |----------|------|---------|-------------|
 | category | str | None | The category (e.g. "processing_error") |
 | code | str | None | The specific error code (e.g. "insufficient_funds")  |
+
+### FullProviderResponse
+
+| Property | Type              | Description                                          |
+|----------|-------------------|------------------------------------------------------|
+| headers  | Dict[str, str]    | HTTP response headers from the provider.             |
+| body     | Dict[str, Any]    | Parsed body of the HTTP response from the provider.  |
+
+### BasisTheoryExtras
+
+| Property | Type   | Description                                                              |
+|----------|--------|--------------------------------------------------------------------------|
+| trace_id | str    | The trace ID associated with the request, useful for debugging and support. |
+
+### ErrorResponse
+
+| Property                 | Type                     | Default | Description                                                                                                |
+|--------------------------|--------------------------|---------|------------------------------------------------------------------------------------------------------------|
+| error_codes              | List[ErrorCode]          | None    | A list of `ErrorCode` objects detailing the errors.                                                          |
+| provider_errors          | List[str]                | None    | A list of raw error messages from the provider.                                                              |
+| full_provider_response   | FullProviderResponse     | None    | An instance of `FullProviderResponse` containing the detailed response from the provider (headers and body). |
+| basis_theory_extras      | BasisTheoryExtras        | None    | (Optional) Contains additional information like `trace_id`.                                                |
 
 ## Error Handling
 

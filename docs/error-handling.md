@@ -160,7 +160,7 @@ try:
         print(f"  Category: {transaction_response.response_code.category}")
         print(f"  Code: {transaction_response.response_code.code}")
         print(f"  Provider Status: {transaction_response.status.provider_code}")
-        # You can also inspect transaction_response.full_provider_response for more details
+        # You can also inspect transaction_response.full_provider_response.body for more details
 
         if transaction_response.response_code.code == ErrorType.INSUFFICENT_FUNDS.code:
             # Handle insufficient funds scenario
