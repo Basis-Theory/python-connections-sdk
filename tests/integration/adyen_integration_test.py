@@ -144,12 +144,10 @@ def test_errors():
 
         # Mock the session.request method
         with patch('requests.request', return_value=mock_response) as mock_request:
-            # For error cases, expect TransactionError with correct error code
-            with pytest.raises(TransactionError) as exc_info:
-                sdk.adyen.create_transaction(transaction_request)
+            # For error cases, expect TransactionError with correct error cod
+            response = sdk.adyen.create_transaction(transaction_request)
             
-            error_response = exc_info.value.error_response
-            assert error_response.error_codes[0].code == test_case["expected_error"].code
+            assert response.response_code.code == test_case["expected_error"].code
 
             # Verify the request was made
             mock_request.assert_called_once()

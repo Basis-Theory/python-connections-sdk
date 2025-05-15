@@ -94,10 +94,12 @@ sdk.[provider].transaction(TransactionRequest(
 | reference | str | None | Reference identifier provided in the request |
 | amount | Amount | None | Transaction amount in minor currency units |
 | status | TransactionStatus | None | Current status of the transaction |
+| response_code | ResponseCode | None | Response code of the transaction | 
 | source | TransactionSource | None | Source payment method details |
-| fullProviderResponse | Dict[str, Any] | None | Complete response from the payment provider |
-| createdt | datetime | None | Timestamp when transaction was created |
+| full_provider_response | string | None | Body of the response fromt he provider |
+| created_at | datetime | None | Timestamp when transaction was created |
 | network_transaction_id | str | None | Network transaction identifier |
+| basis_theory_extras | BasisTheoryExtras | None | (Optional) Contains additional information from Basis Theory, such as a `trace_id`. |
 
 ## Refund Methods
 
@@ -133,7 +135,7 @@ sdk.[provider].refund_transaction(RefundRequest(
 | amount | Amount | None | Amount details of the refund |
 | status | RefundStatus | None | Current status of the refund |
 | refunded_transaction_id | str | None | ID of the original transaction that was refunded |
-| full_provider_response | Dict[str, Any] | None | Complete response from the payment provider |
+| full_provider_response | string | None | Body of the response fromt he provider |
 | created_at | datetime | None | Timestamp when refund was created |
 
 
@@ -248,6 +250,29 @@ sdk.[provider].refund_transaction(RefundRequest(
 | RETURN | Refund for returned goods |
 | DUPLICATE | Refund for a duplicate charge |
 | OTHER | Other reason for refund |
+
+### ResponseCode
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| category | str | None | The category (e.g. "processing_error") |
+| code | str | None | The specific error code (e.g. "insufficient_funds")  |
+
+
+### BasisTheoryExtras
+
+| Property | Type   | Description                                                              |
+|----------|--------|--------------------------------------------------------------------------|
+| trace_id | str    | The trace ID associated with the request, useful for debugging and support. |
+
+### ErrorResponse
+
+| Property                 | Type                     | Default | Description                                                                                                |
+|--------------------------|--------------------------|---------|------------------------------------------------------------------------------------------------------------|
+| error_codes              | List[ErrorCode]          | None    | A list of `ErrorCode` objects detailing the errors.                                                          |
+| provider_errors          | List[str]                | None    | A list of raw error messages from the provider.                                                              |
+| full_provider_response   | string                   | None    | Body of the response fromt he provider |
+| basis_theory_extras      | BasisTheoryExtras        | None    | (Optional) Contains additional information like `trace_id`.                                                |
 
 ## Error Handling
 

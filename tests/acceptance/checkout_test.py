@@ -34,7 +34,7 @@ from connections_sdk.models import (
     ErrorCategory,
     ErrorType
 )
-from connections_sdk.exceptions import TransactionError, ValidationError
+from connections_sdk.exceptions import TransactionError
 
 # Load environment variables from .env file
 load_dotenv()
@@ -167,6 +167,10 @@ def test_storing_card_on_file():
     assert response.full_provider_response is not None
     
     assert response.created_at is not None
+
+    assert response.basis_theory_extras is not None
+    assert response.basis_theory_extras.trace_id is not None
+    assert response.basis_theory_extras.trace_id != ''
 
 def test_storing_card_on_file_zero_dollar_amount():
     # Create a Basis Theory token
@@ -372,7 +376,7 @@ def test_with_three_ds():
 
 def test_error_expired_card():
     # Create a Basis Theory token
-    token_id = create_bt_token("4724117215951699", "2024", "03", "100")
+    token_id = create_bt_token("4532446037926437", "2024", "03", "100")
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -401,33 +405,202 @@ def test_error_expired_card():
         )
     )
 
-    print(f"Transaction request: {transaction_request}")
-
     # Make the transaction request and expect a TransactionError
-    with pytest.raises(TransactionError) as exc_info:
-        sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
 
-    # Get the error response from the exception
-    error_response = exc_info.value.error_response
-    print(f"Error Response: {json.dumps(error_response.full_provider_response, indent=2)}")
+    # Validate source
+    assert response.source is not None
+    assert response.source.type in [SourceType.BASIS_THEORY_TOKEN]
+    assert response.source.id is not None
+    assert response.source.provisioned is None
 
-    # Validate error response structure
-    assert len(error_response.error_codes) == 1
-    
     # Verify exact error code values
-    error = error_response.error_codes[0]
-    assert error.category == ErrorCategory.PAYMENT_METHOD_ERROR
-    assert error.code == ErrorType.EXPIRED_CARD.code
-    
-    # Verify provider errors
-    assert isinstance(error_response.provider_errors, list)
-    assert len(error_response.provider_errors) == 1
-    assert error_response.provider_errors == ['card_expired']
+    assert response.response_code.category == ErrorCategory.PAYMENT_METHOD_ERROR
+    assert response.response_code.code == ErrorType.EXPIRED_CARD.code
     
     # Verify full provider response
-    assert isinstance(error_response.full_provider_response, dict)
-    assert error_response.full_provider_response['error_type'] == 'processing_error'
-    assert error_response.full_provider_response['error_codes'] == ['card_expired']
+    assert isinstance(response.full_provider_response, dict)
+    assert response.full_provider_response['error_type'] == 'processing_error'
+    assert response.full_provider_response['error_codes'] == ['card_expired']
+
+    assert response.basis_theory_extras is not None
+    assert response.basis_theory_extras.trace_id is not None
+    assert response.basis_theory_extras.trace_id != ''
+
+
+
+def test_error_insufficient_funds():
+    # Create a Basis Theory token
+    token_id = create_bt_token("4544249167673670", "2030", "03", "100")
+
+    # Initialize the SDK with environment variables
+    sdk = get_sdk();
+
+    transaction_request = TransactionRequest(
+        reference=str(uuid.uuid4()),  # Unique reference for the transaction
+        type=RecurringType.ONE_TIME,
+        amount=Amount(
+            value=1,  # Amount in cents
+            currency='USD'
+        ),
+        source=Source(
+            type=SourceType.BASIS_THEORY_TOKEN,
+            id=token_id,
+            store_with_provider=False
+        ),
+        customer=Customer(
+            reference=str(uuid.uuid4()),
+            address=Address(
+                address_line1='123 Main St',
+                city='New York', 
+                state='NY',
+                zip='10001',
+                country='GB'
+            )
+        )
+    )
+
+    # Make the transaction request and expect a TransactionError
+    response = sdk.checkout.create_transaction(transaction_request)
+
+    # Validate source
+    assert response.source is not None
+    assert response.source.type in [SourceType.BASIS_THEORY_TOKEN]
+    assert response.source.id is not None
+    assert response.source.provisioned is None
+
+    # Verify exact error code values
+    assert response.response_code.category == ErrorCategory.PAYMENT_METHOD_ERROR
+    assert response.response_code.code == ErrorType.INSUFFICENT_FUNDS.code
+    
+    assert response.full_provider_response['response_code'] == '20051'
+    assert response.full_provider_response['response_summary'] == 'Insufficient Funds'
+
+def test_error_invalid_card():
+    # Create a Basis Theory token
+    token_id = create_bt_token("4485381577182090", "2030", "03", "100")
+
+    # Initialize the SDK with environment variables
+    sdk = get_sdk();
+
+    transaction_request = TransactionRequest(
+        reference=str(uuid.uuid4()),  # Unique reference for the transaction
+        type=RecurringType.ONE_TIME,
+        amount=Amount(
+            value=1,  # Amount in cents
+            currency='USD'
+        ),
+        source=Source(
+            type=SourceType.BASIS_THEORY_TOKEN,
+            id=token_id,
+            store_with_provider=False
+        ),
+        customer=Customer(
+            reference=str(uuid.uuid4()),
+            address=Address(
+                address_line1='123 Main St',
+                city='New York', 
+                state='NY',
+                zip='10001',
+                country='US'
+            )
+        )
+    )
+
+    # Make the transaction request and expect a TransactionError
+    response = sdk.checkout.create_transaction(transaction_request)
+
+    # Verify exact error code values
+    assert response.response_code.category == ErrorCategory.PAYMENT_METHOD_ERROR
+    assert response.response_code.code == ErrorType.INVALID_CARD.code
+    
+    assert response.full_provider_response['response_code'] == '20014'
+    assert response.full_provider_response['response_summary'] == 'Invalid Card Number'
+
+def test_error_stolen_card():
+    # Create a Basis Theory token
+    token_id = create_bt_token("4539253655711767", "2030", "03", "100")
+
+    # Initialize the SDK with environment variables
+    sdk = get_sdk();
+
+    transaction_request = TransactionRequest(
+        reference=str(uuid.uuid4()),  # Unique reference for the transaction
+        type=RecurringType.ONE_TIME,
+        amount=Amount(
+            value=1,  # Amount in cents
+            currency='USD'
+        ),
+        source=Source(
+            type=SourceType.BASIS_THEORY_TOKEN,
+            id=token_id,
+            store_with_provider=False
+        ),
+        customer=Customer(
+            reference=str(uuid.uuid4()),
+            address=Address(
+                address_line1='123 Main St',
+                city='New York', 
+                state='NY',
+                zip='10001',
+                country='IE'
+            )
+        )
+    )
+    # Make the transaction request and expect a TransactionError
+    response = sdk.checkout.create_transaction(transaction_request)
+
+    # Verify exact error code values
+    assert response.response_code.category == ErrorCategory.FRAUD_DECLINE
+    assert response.response_code.code == ErrorType.FRAUD.code
+    
+    assert response.full_provider_response['response_code'] == '30043'
+    assert response.full_provider_response['response_summary'] == 'Stolen Card - Pick Up'
+
+
+def test_error_declined():
+    # Create a Basis Theory token
+    token_id = create_bt_token("4539467987109256", "2030", "03", "100")
+
+    # Initialize the SDK with environment variables
+    sdk = get_sdk();
+
+    transaction_request = TransactionRequest(
+        reference=str(uuid.uuid4()),  # Unique reference for the transaction
+        type=RecurringType.ONE_TIME,
+        amount=Amount(
+            value=1,  # Amount in cents
+            currency='USD'
+        ),
+        source=Source(
+            type=SourceType.BASIS_THEORY_TOKEN,
+            id=token_id,
+            store_with_provider=False
+        ),
+        customer=Customer(
+            reference=str(uuid.uuid4()),
+            address=Address(
+                address_line1='123 Main St',
+                city='New York', 
+                state='NY',
+                zip='10001',
+                country='ES'
+            )
+        )
+    )
+
+     # Make the transaction request and expect a TransactionError
+    response = sdk.checkout.create_transaction(transaction_request)
+
+    assert response.source is not None
+
+    # Verify exact error code values
+    assert response.response_code.category == ErrorCategory.PROCESSING_ERROR
+    assert response.response_code.code == ErrorType.REFUSED.code
+    
+    assert response.full_provider_response['response_code'] == '20005'
+    assert response.full_provider_response['response_summary'] == 'Declined - Do Not Honour'
+
 
 def test_error_invalid_api_key():
     # Create a Basis Theory token
@@ -479,6 +652,7 @@ def test_error_invalid_api_key():
     
     # Verify full provider response
     assert error_response.full_provider_response is None
+    assert error_response.basis_theory_extras is not None
 
 def test_token_intents_charge_not_storing_card_on_file(): 
     # Create a Basis Theory token

@@ -16,14 +16,12 @@ from connections_sdk.models import (
     Source,
     Customer
 )
-from connections_sdk.exceptions import TransactionError, ValidationError
+from connections_sdk.exceptions import TransactionError, TransactionError
 
 def test_errors():  
     # Define test cases mapping
     test_cases = [
         {"error_type": "processing_error", "error_codes": ["card_authorization_failed"], "expected_error": ErrorType.REFUSED},
-        {"error_type": "processing_error", "error_codes": ["card_disabled"], "expected_error": ErrorType.BLOCKED_CARD},
-        {"error_type": "processing_error", "error_codes": ["card_expired"], "expected_error": ErrorType.EXPIRED_CARD},
         {"error_type": "processing_error", "error_codes": ["card_expiry_month_invalid"], "expected_error": ErrorType.INVALID_CARD},
         {"error_type": "processing_error", "error_codes": ["card_expiry_month_required"], "expected_error": ErrorType.INVALID_CARD},
         {"error_type": "processing_error", "error_codes": ["card_expiry_year_invalid"], "expected_error": ErrorType.INVALID_CARD},

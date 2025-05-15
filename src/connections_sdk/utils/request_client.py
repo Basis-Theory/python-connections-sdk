@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional, Union, List, cast
+from typing import Dict, Any, Optional, List
 import requests
 from requests.models import Response
 from ..models import ErrorType, ErrorCode, ErrorResponse
@@ -41,7 +41,7 @@ class RequestClient:
                 ErrorCode(
                     category=error_type.category,
                     code=error_type.code
-                )
+                )   
             ],
             provider_errors=provider_errors,
             full_provider_response=response_data

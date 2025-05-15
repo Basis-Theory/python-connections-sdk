@@ -1,4 +1,5 @@
 from typing import Dict, Any, Optional
+from requests.structures import CaseInsensitiveDict
 from ..models import (
     TransactionRequest,
     Amount,
@@ -8,10 +9,29 @@ from ..models import (
     Address,
     StatementDescription,
     ThreeDS,
-    RecurringType
+    RecurringType,
+    ErrorType,
+    ErrorResponse,
+    ErrorCode,
+    BasisTheoryExtras
 )
-from ..exceptions import ValidationError
+from ..exceptions import TransactionError
 
+def _error_code(error_type: ErrorType) -> ErrorCode:
+    """
+    Validate the amount in a transaction request.
+    """
+    return ErrorCode(
+        category=error_type.category,
+        code=error_type.code
+    )
+
+def _basis_theory_extras(headers: Optional[CaseInsensitiveDict]) -> Optional[BasisTheoryExtras]:
+    if headers and "bt-trace-id" in headers:
+        return BasisTheoryExtras(
+            trace_id=headers.get("bt-trace-id", "")
+        )
+    return None
 
 def validate_required_fields(data: TransactionRequest) -> None:
     """
@@ -21,12 +41,20 @@ def validate_required_fields(data: TransactionRequest) -> None:
         data: TransactionRequest containing transaction request data
         
     Raises:
-        ValidationError: If required fields are missing
+        TransactionError: If required fields are missing
     """
     if data.amount is None or data.amount.value is None:
-        raise ValidationError("amount.value is required")
+        raise TransactionError(ErrorResponse(
+            error_codes=[_error_code(ErrorType.INVALID_AMOUNT)],
+            provider_errors=[],
+            full_provider_response={}
+        ))
     if not data.source or not data.source.type or not data.source.id:
-        raise ValidationError("source.type and source.id are required")
+        raise TransactionError(ErrorResponse(
+            error_codes=[_error_code(ErrorType.INVALID_SOURCE_TOKEN)],
+            provider_errors=[],
+            full_provider_response={}
+        ))
 
 
 def create_transaction_request(data: Dict[str, Any]) -> TransactionRequest:
@@ -40,7 +68,7 @@ def create_transaction_request(data: Dict[str, Any]) -> TransactionRequest:
         TransactionRequest: A fully populated TransactionRequest object
         
     Raises:
-        ValidationError: If required fields are missing
+        TransactionError: If required fields are missing
     """
     return TransactionRequest(
         amount=Amount(
