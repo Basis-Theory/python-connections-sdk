@@ -464,7 +464,7 @@ class CheckoutClient:
 
         return payload
 
-    def _transform_checkout_response(self, response_data: Dict[str, Any], request: TransactionRequest, headers: Optional[Dict[str, str]] = None, error_data: Optional[Dict[str, Any]] = None) -> TransactionResponse:
+    def _transform_checkout_response(self, response_data: Dict[str, Any], request: TransactionRequest, headers: Dict[str, str], error_data: Optional[Dict[str, Any]] = None) -> TransactionResponse:
         """Transform Checkout.com response to our standardized format."""
         response_code = ResponseCode(
             category=CHECKOUT_NUMERICAL_CODE_MAPPING.get(str(response_data.get("response_code")), ErrorType.OTHER).category,
@@ -587,14 +587,14 @@ class CheckoutClient:
                 error_data = e.response.json()
 
                 if "card_expired" in error_data.get("error_codes", []) or "card_disabled" in error_data.get("error_codes", []):
-                    return self._transform_checkout_response(error_data, request_data, e.response.headers, error_data)
+                    return self._transform_checkout_response(error_data, request_data, dict(e.response.headers), error_data)
             except:
                 error_data = None
 
-            raise TransactionError(self._transform_error_response_object(e.response, error_data, e.response.headers))
+            raise TransactionError(self._transform_error_response_object(e.response, error_data, dict(e.response.headers)))
 
         # Transform response to SDK format
-        return self._transform_checkout_response(response.json(), request_data, response.headers)
+        return self._transform_checkout_response(response.json(), request_data, dict(response.headers))
 
     def refund_transaction(self, refund_request: RefundRequest) -> RefundResponse:
         """
@@ -629,7 +629,7 @@ class CheckoutClient:
             )
 
             response_data = response.json()
-            headers = response.headers
+            headers = dict(response.headers)
 
             # Transform the response to a standardized format
             return RefundResponse(
@@ -651,5 +651,4 @@ class CheckoutClient:
             except:
                 error_data = None
 
-            raise TransactionError(self._transform_error_response_object(e.response, error_data, e.response.headers))
-            
+            raise TransactionError(self._transform_error_response_object(e.response, error_data, dict(e.response.headers)))

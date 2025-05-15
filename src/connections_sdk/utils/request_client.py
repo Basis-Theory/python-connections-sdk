@@ -45,7 +45,7 @@ class RequestClient:
             ],
             provider_errors=provider_errors,
             full_provider_response=FullProviderResponse(
-                headers=response.headers,
+                headers=dict(response.headers),
                 body=response_data
             )
         )

@@ -12,7 +12,8 @@ from ..models import (
     ErrorType,
     ErrorResponse,
     ErrorCode,
-    BasisTheoryExtras
+    BasisTheoryExtras,
+    FullProviderResponse
 )
 from ..exceptions import TransactionError
 
@@ -25,10 +26,10 @@ def _error_code(error_type: ErrorType) -> ErrorCode:
         code=error_type.code
     )
 
-def _basis_theory_extras(headers: Dict[str, str]) -> Optional[BasisTheoryExtras]:
-    if "bt-trace-id" in headers:
+def _basis_theory_extras(headers: Optional[Dict[str, str]]) -> Optional[BasisTheoryExtras]:
+    if headers and "bt-trace-id" in headers:
         return BasisTheoryExtras(
-            trace_id=headers.get("bt-trace-id")
+            trace_id=headers.get("bt-trace-id", "")
         )
     return None
 
@@ -52,7 +53,10 @@ def validate_required_fields(data: TransactionRequest) -> None:
         raise TransactionError(ErrorResponse(
             error_codes=[_error_code(ErrorType.INVALID_SOURCE_TOKEN)],
             provider_errors=[],
-            full_provider_response={}
+            full_provider_response=FullProviderResponse(
+                headers={},
+                body={}
+            )
         ))
 
 

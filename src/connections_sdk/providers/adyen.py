@@ -331,7 +331,7 @@ class AdyenClient:
             response_data = response.json()
 
             # Transform the successful response to our format
-            return self._transform_adyen_response(response_data, request_data, response.headers)
+            return self._transform_adyen_response(response_data, request_data, dict(response.headers))
 
         except requests.exceptions.HTTPError as e:
             try:
@@ -339,7 +339,7 @@ class AdyenClient:
             except:
                 error_data = None
 
-            raise TransactionError(self._transform_error_response(e.response, error_data, e.response.headers))
+            raise TransactionError(self._transform_error_response(e.response, error_data, dict(e.response.headers)))
 
 
     def refund_transaction(self, refund_request: RefundRequest) -> RefundResponse:
@@ -410,5 +410,5 @@ class AdyenClient:
             except:
                 error_data = None
 
-            raise TransactionError(self._transform_error_response(e.response, error_data, e.response.headers))
+            raise TransactionError(self._transform_error_response(e.response, error_data, dict(e.response.headers)))
 
