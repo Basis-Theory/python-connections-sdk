@@ -1,3 +1,15 @@
+# [3.0.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v2.1.0...v3.0.0) (2025-05-15)
+
+
+### Features
+
+* adding additional CKO error code mappings, Error Response Updates, and BT Trace Id ([#42](https://github.com/Basis-Theory/python-connections-sdk/issues/42)) ([1dbd579](https://github.com/Basis-Theory/python-connections-sdk/commit/1dbd579b97ddd821bf6631d249ccef1676884e3f))
+
+
+### BREAKING CHANGES
+
+* Returning processing errors in TransactionResponse
+
 # [2.1.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v2.0.0...v2.1.0) (2025-05-13)
 
 
