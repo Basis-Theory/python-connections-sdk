@@ -21,17 +21,21 @@ When a transaction fails, the SDK raises an exception with the following structu
     )
 ```
 
-### Exceptions
+## Exceptions
+
+The primary exceptions you might encounter are:
 
 | Exception | Has ErrorResponse | Description |
 |-----------|------------------|-------------|
-| `ValidationError` | Yes | Raised when a payment transaction fails. Contains the standardized error response with error codes and provider details. |
-| `ValidationError` | No | Raised when request validation fails, such as missing required fields. |
+| `ValidationError` | Yes (Conditional) | Raised for various issues: <br> 1. **Request validation failures** (e.g., missing required fields before sending to a provider). In this case, `error_response` may contain locally generated error details. <br> 2. **Payment transaction failures** that are not handled by returning a `TransactionResponse` with a specific decline `response_code` (e.g., API authentication errors with the provider, unexpected provider errors). In this case, `error_response` will contain standardized error details from the provider. |
 | `ConfigurationError` | No | Raised when SDK configuration is invalid, such as missing API keys or invalid settings. |
 | `BasisTheoryError` | Yes | Raised when there is an error interacting with Basis Theory services. Contains error response and HTTP status. |
 
+### ErrorResponse Object
 
-### Exception.ErrorResponse
+When an exception that includes an `ErrorResponse` (like `ValidationError` for provider errors or `BasisTheoryError`) is raised, the `error_response` attribute of the exception object will contain:
+
+* `error_codes`: A list of standardized `ErrorCode` objects.
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
@@ -45,7 +49,6 @@ When a transaction fails, the SDK raises an exception with the following structu
 |----------|------|---------|-------------|
 | category | str | None | The error category (e.g. "authentication_error", "payment_method_error") |
 | code | str | None | The specific error code within the category |
-
 
 ## Error Categories
 
@@ -129,3 +132,64 @@ except Exception as e:
 1. Use the provider errors array for detailed error messages
 2. Log the full provider response for debugging purposes
 3. Handle common error categories with appropriate user messaging
+
+## Handling Declines and Errors in `TransactionResponse`
+
+For many common payment transaction outcomes, especially declines (e.g., "Insufficient Funds", "Expired Card", "Card Declined"), the SDK will **not** raise an exception. Instead, it will return a `TransactionResponse` object.
+
+You should inspect the `status` and `response_code` fields of the `TransactionResponse` to understand the outcome of the transaction.
+
+`TransactionResponse` fields relevant to error/decline handling:
+* `status: TransactionStatus`: Contains a `code` (e.g., `TransactionStatusCode.DECLINED`, `TransactionStatusCode.FAILED`) and the original `provider_code`.
+* `response_code: ResponseCode`: A standardized code indicating the reason for the transaction outcome. It has two sub-fields:
+    * `category: str`: A broad category for the error (e.g., `ErrorCategory.PAYMENT_METHOD_ERROR`, `ErrorCategory.PROCESSING_ERROR`).
+    * `code: str`: A specific error code (e.g., `ErrorType.INSUFFICENT_FUNDS.code`, `ErrorType.EXPIRED_CARD.code`).
+* `full_provider_response: Dict[str, Any]`: The complete response from the payment provider.
+
+Example of checking `TransactionResponse`:
+
+```python
+from connections_sdk.models import TransactionStatusCode, ErrorCategory, ErrorType
+
+# ... your code to make a transaction ...
+try:
+    transaction_response = sdk.provider.create_transaction(transaction_request)
+
+    if transaction_response.status.code == TransactionStatusCode.DECLINED:
+        print(f"Transaction Declined.")
+        print(f"  Category: {transaction_response.response_code.category}")
+        print(f"  Code: {transaction_response.response_code.code}")
+        print(f"  Provider Status: {transaction_response.status.provider_code}")
+        # You can also inspect transaction_response.full_provider_response for more details
+
+        if transaction_response.response_code.code == ErrorType.INSUFFICENT_FUNDS.code:
+            # Handle insufficient funds scenario
+            pass
+        elif transaction_response.response_code.code == ErrorType.EXPIRED_CARD.code:
+            # Handle expired card scenario
+            pass
+        # ... other specific error checks
+
+    elif transaction_response.status.code == TransactionStatusCode.FAILED:
+        print(f"Transaction Failed.")
+        print(f"  Category: {transaction_response.response_code.category}")
+        print(f"  Code: {transaction_response.response_code.code}")
+        # Handle other failure scenarios
+
+    elif transaction_response.status.code == TransactionStatusCode.SUCCESS:
+        print("Transaction Successful!")
+        # Process successful transaction
+
+except ValidationError as e:
+    # Handle exceptions for issues not covered by normal TransactionResponse declines
+    print(f"An exception occurred: {e}")
+    if e.error_response:
+        print(f"  Error Codes: {e.error_response.error_codes}")
+
+except Exception as e:
+    # Catch any other unexpected exceptions
+    print(f"An unexpected error occurred: {e}")
+
+```
+
+This approach allows for more granular handling of different transaction outcomes directly from the response object, reserving exceptions for more systemic or unexpected issues.
