@@ -34,7 +34,7 @@ from connections_sdk.models import (
     ErrorCategory,
     ErrorType
 )
-from connections_sdk.exceptions import ValidationError
+from connections_sdk.exceptions import TransactionError
 
 # Load environment variables from .env file
 load_dotenv()
@@ -394,7 +394,7 @@ def test_error_expired_card():
         )
     )
 
-    # Make the transaction request and expect a ValidationError
+    # Make the transaction request and expect a TransactionError
     response = sdk.checkout.create_transaction(transaction_request)
 
     # Validate source
@@ -445,7 +445,7 @@ def test_error_insufficient_funds():
         )
     )
 
-    # Make the transaction request and expect a ValidationError
+    # Make the transaction request and expect a TransactionError
     response = sdk.checkout.create_transaction(transaction_request)
 
     # Validate source
@@ -492,7 +492,7 @@ def test_error_invalid_card():
         )
     )
 
-    # Make the transaction request and expect a ValidationError
+    # Make the transaction request and expect a TransactionError
     response = sdk.checkout.create_transaction(transaction_request)
 
     # Verify exact error code values
@@ -532,7 +532,7 @@ def test_error_stolen_card():
             )
         )
     )
-    # Make the transaction request and expect a ValidationError
+    # Make the transaction request and expect a TransactionError
     response = sdk.checkout.create_transaction(transaction_request)
 
     # Verify exact error code values
@@ -574,7 +574,7 @@ def test_error_declined():
         )
     )
 
-     # Make the transaction request and expect a ValidationError
+     # Make the transaction request and expect a TransactionError
     response = sdk.checkout.create_transaction(transaction_request)
 
     assert response.source is not None
@@ -615,8 +615,8 @@ def test_error_invalid_api_key():
 
     print(f"Transaction request: {transaction_request}")
 
-    # Make the transaction request and expect a ValidationError
-    with pytest.raises(ValidationError) as exc_info:
+    # Make the transaction request and expect a TransactionError
+    with pytest.raises(TransactionError) as exc_info:
         sdk.checkout.create_transaction(transaction_request)
 
     # Get the error response from the exception
@@ -855,8 +855,8 @@ def test_failed_refund():
         reference=f"{transaction_request.reference}_refund",
         amount=Amount(value=3739, currency='USD')
     )
-    # Process the refund and expect a ValidationError
-    with pytest.raises(ValidationError) as exc_info:
+    # Process the refund and expect a TransactionError
+    with pytest.raises(TransactionError) as exc_info:
         sdk.checkout.refund_transaction(refund_request)
 
     # Get the error response from the exception
@@ -900,8 +900,8 @@ def test_failed_refund_amount_exceeds_balance():
         reference=f"{transaction_request.reference}_refund",
         amount=Amount(value=200, currency='USD')
     )
-    # Process the refund and expect a ValidationError
-    with pytest.raises(ValidationError) as exc_info:
+    # Process the refund and expect a TransactionError
+    with pytest.raises(TransactionError) as exc_info:
         sdk.checkout.refund_transaction(refund_request)
 
     # Get the error response from the exception

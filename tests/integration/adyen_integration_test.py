@@ -16,7 +16,7 @@ from connections_sdk.models import (
     Customer,
     Address
 )
-from connections_sdk.exceptions import ValidationError
+from connections_sdk.exceptions import TransactionError
 
 
 def test_singleton_does_not_reset_adyen_merchant_account():
@@ -144,7 +144,7 @@ def test_errors():
 
         # Mock the session.request method
         with patch('requests.request', return_value=mock_response) as mock_request:
-            # For error cases, expect ValidationError with correct error cod
+            # For error cases, expect TransactionError with correct error cod
             response = sdk.adyen.create_transaction(transaction_request)
             
             assert response.response_code.code == test_case["expected_error"].code

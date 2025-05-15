@@ -1,6 +1,6 @@
 from connections_sdk.models import ErrorResponse
 
-class ValidationError(Exception):
+class TransactionError(Exception):
     """Raised when request validation fails."""
     error_response: ErrorResponse
     def __init__(self, error_response: 'ErrorResponse'):

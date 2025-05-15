@@ -16,7 +16,7 @@ from connections_sdk.models import (
     Source,
     Customer
 )
-from connections_sdk.exceptions import ValidationError, ValidationError
+from connections_sdk.exceptions import TransactionError, TransactionError
 
 def test_errors():  
     # Define test cases mapping
@@ -116,8 +116,8 @@ def test_errors():
 
         # Mock the session.request method to raise HTTPError
         with patch('requests.request', side_effect=mock_error) as mock_request:
-            # Make the transaction request and expect a ValidationError
-            with pytest.raises(ValidationError) as exc_info:
+            # Make the transaction request and expect a TransactionError
+            with pytest.raises(TransactionError) as exc_info:
                 sdk.checkout.create_transaction(transaction_request)
 
             # Get the error response from the exception

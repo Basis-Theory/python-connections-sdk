@@ -27,13 +27,13 @@ The primary exceptions you might encounter are:
 
 | Exception | Has ErrorResponse | Description |
 |-----------|------------------|-------------|
-| `ValidationError` | Yes (Conditional) | Raised for various issues: <br> 1. **Request validation failures** (e.g., missing required fields before sending to a provider). In this case, `error_response` may contain locally generated error details. <br> 2. **Payment transaction failures** that are not handled by returning a `TransactionResponse` with a specific decline `response_code` (e.g., API authentication errors with the provider, unexpected provider errors). In this case, `error_response` will contain standardized error details from the provider. |
+| `TransactionError` | Yes (Conditional) | Raised for various issues: <br> 1. **Request validation failures** (e.g., missing required fields before sending to a provider). In this case, `error_response` may contain locally generated error details. <br> 2. **Payment transaction failures** that are not handled by returning a `TransactionResponse` with a specific decline `response_code` (e.g., API authentication errors with the provider, unexpected provider errors). In this case, `error_response` will contain standardized error details from the provider. |
 | `ConfigurationError` | No | Raised when SDK configuration is invalid, such as missing API keys or invalid settings. |
 | `BasisTheoryError` | Yes | Raised when there is an error interacting with Basis Theory services. Contains error response and HTTP status. |
 
 ### ErrorResponse Object
 
-When an exception that includes an `ErrorResponse` (like `ValidationError` for provider errors or `BasisTheoryError`) is raised, the `error_response` attribute of the exception object will contain:
+When an exception that includes an `ErrorResponse` (like `TransactionError` for provider errors or `BasisTheoryError`) is raised, the `error_response` attribute of the exception object will contain:
 
 * `error_codes`: A list of standardized `ErrorCode` objects.
 
@@ -180,7 +180,7 @@ try:
         print("Transaction Successful!")
         # Process successful transaction
 
-except ValidationError as e:
+except TransactionError as e:
     # Handle exceptions for issues not covered by normal TransactionResponse declines
     print(f"An exception occurred: {e}")
     if e.error_response:

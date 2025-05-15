@@ -13,7 +13,7 @@ from ..models import (
     ErrorResponse,
     ErrorCode
 )
-from ..exceptions import ValidationError
+from ..exceptions import TransactionError
 
 def _error_code(error_type: ErrorType) -> ErrorCode:
     """
@@ -33,16 +33,16 @@ def validate_required_fields(data: TransactionRequest) -> None:
         data: TransactionRequest containing transaction request data
         
     Raises:
-        ValidationError: If required fields are missing
+        TransactionError: If required fields are missing
     """
     if data.amount is None or data.amount.value is None:
-        raise ValidationError(ErrorResponse(
+        raise TransactionError(ErrorResponse(
             error_codes=[_error_code(ErrorType.INVALID_AMOUNT)],
             provider_errors=[],
             full_provider_response={}
         ))
     if not data.source or not data.source.type or not data.source.id:
-        raise ValidationError(ErrorResponse(
+        raise TransactionError(ErrorResponse(
             error_codes=[_error_code(ErrorType.INVALID_SOURCE_TOKEN)],
             provider_errors=[],
             full_provider_response={}
@@ -60,7 +60,7 @@ def create_transaction_request(data: Dict[str, Any]) -> TransactionRequest:
         TransactionRequest: A fully populated TransactionRequest object
         
     Raises:
-        ValidationError: If required fields are missing
+        TransactionError: If required fields are missing
     """
     return TransactionRequest(
         amount=Amount(

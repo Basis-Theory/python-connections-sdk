@@ -27,7 +27,7 @@ from ..models import (
 )
 from ..utils.model_utils import create_transaction_request, validate_required_fields
 from ..utils.request_client import RequestClient
-from ..exceptions import ValidationError
+from ..exceptions import TransactionError
 
 
 RECURRING_TYPE_MAPPING = {
@@ -330,7 +330,7 @@ class AdyenClient:
             except:
                 error_data = None
 
-            raise ValidationError(self._transform_error_response(e.response, error_data))
+            raise TransactionError(self._transform_error_response(e.response, error_data))
 
 
     def refund_transaction(self, refund_request: RefundRequest) -> RefundResponse:
@@ -398,5 +398,5 @@ class AdyenClient:
             except:
                 error_data = None
 
-            raise ValidationError(self._transform_error_response(e.response, error_data))
+            raise TransactionError(self._transform_error_response(e.response, error_data))
 

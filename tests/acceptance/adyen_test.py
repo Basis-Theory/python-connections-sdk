@@ -26,7 +26,7 @@ from connections_sdk.models import (
     TransactionSource,
     ProvisionedSource
 )
-from connections_sdk.exceptions import ValidationError, BasisTheoryError
+from connections_sdk.exceptions import TransactionError, BasisTheoryError
 
 # Load environment variables from .env file
 load_dotenv()
@@ -311,7 +311,7 @@ def test_error_expired_card():
 
     print(f"Transaction request: {transaction_request}")
 
-        # Make the transaction request and expect a ValidationError
+        # Make the transaction request and expect a TransactionError
     response = sdk.adyen.create_transaction(transaction_request)
 
     # Validate source
@@ -357,7 +357,7 @@ def test_error_invalid_api_key():
     try:
         response = sdk.adyen.create_transaction(transaction_request)
         print(f"Response: {response}")
-    except ValidationError as e:
+    except TransactionError as e:
         response = e.error_response
         print(f"BasisTheory Error Response: {response}")
 
