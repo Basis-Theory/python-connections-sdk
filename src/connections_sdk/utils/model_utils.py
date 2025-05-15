@@ -1,4 +1,5 @@
 from typing import Dict, Any, Optional
+from requests.structures import CaseInsensitiveDict
 from ..models import (
     TransactionRequest,
     Amount,
@@ -12,8 +13,7 @@ from ..models import (
     ErrorType,
     ErrorResponse,
     ErrorCode,
-    BasisTheoryExtras,
-    FullProviderResponse
+    BasisTheoryExtras
 )
 from ..exceptions import TransactionError
 
@@ -26,7 +26,7 @@ def _error_code(error_type: ErrorType) -> ErrorCode:
         code=error_type.code
     )
 
-def _basis_theory_extras(headers: Optional[Dict[str, str]]) -> Optional[BasisTheoryExtras]:
+def _basis_theory_extras(headers: Optional[CaseInsensitiveDict[str]]) -> Optional[BasisTheoryExtras]:
     if headers and "bt-trace-id" in headers:
         return BasisTheoryExtras(
             trace_id=headers.get("bt-trace-id", "")
@@ -53,10 +53,7 @@ def validate_required_fields(data: TransactionRequest) -> None:
         raise TransactionError(ErrorResponse(
             error_codes=[_error_code(ErrorType.INVALID_SOURCE_TOKEN)],
             provider_errors=[],
-            full_provider_response=FullProviderResponse(
-                headers={},
-                body={}
-            )
+            full_provider_response={}
         ))
 
 

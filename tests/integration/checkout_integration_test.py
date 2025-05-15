@@ -139,7 +139,7 @@ def test_errors():
             assert error_response.provider_errors == test_case["error_codes"]
 
             # Verify full provider response
-            assert isinstance(error_response.full_provider_response.body, dict)
-            assert error_response.full_provider_response.body['error_type'] == test_case["error_type"]
-            assert error_response.full_provider_response.body['error_codes'] == test_case["error_codes"]
+            assert isinstance(error_response.full_provider_response, dict)
+            assert error_response.full_provider_response['error_type'] == test_case["error_type"]
+            assert error_response.full_provider_response['error_codes'] == test_case["error_codes"]
 

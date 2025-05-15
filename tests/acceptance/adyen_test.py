@@ -125,7 +125,7 @@ def test_storing_card_on_file():
 
     # Make the transaction request
     response = sdk.adyen.create_transaction(transaction_request)
-    print(f"Response: {response.full_provider_response.body}")
+    print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
     assert isinstance(response, TransactionResponse)
@@ -150,8 +150,8 @@ def test_storing_card_on_file():
     assert response.source.provisioned.id is not None
     
     # Validate other fields
-    assert response.full_provider_response.body is not None
-    assert isinstance(response.full_provider_response.body, dict)
+    assert response.full_provider_response is not None
+    assert isinstance(response.full_provider_response, dict)
     
     assert response.created_at is not None
 
@@ -159,10 +159,6 @@ def test_storing_card_on_file():
     assert response.network_transaction_id is not None
     assert isinstance(response.network_transaction_id, str)
     assert len(response.network_transaction_id) > 0
-
-    assert response.full_provider_response.headers is not None
-    assert response.full_provider_response.headers['bt-trace-id'] is not None
-    assert response.full_provider_response.headers['bt-trace-id'] != ''
 
     assert response.basis_theory_extras is not None
     assert response.basis_theory_extras.trace_id is not None
@@ -195,7 +191,7 @@ def test_not_storing_card_on_file():
 
     # Make the transaction request
     response = sdk.adyen.create_transaction(transaction_request)
-    print(f"Response: {response.full_provider_response.body}")
+    print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
     assert isinstance(response, TransactionResponse)
@@ -219,8 +215,8 @@ def test_not_storing_card_on_file():
     assert response.source.provisioned is None
 
     # Validate other fields
-    assert response.full_provider_response.body is not None
-    assert isinstance(response.full_provider_response.body, dict)
+    assert response.full_provider_response is not None
+    assert isinstance(response.full_provider_response, dict)
 
     # Validate network_transaction_id
     assert response.network_transaction_id is not None
@@ -260,7 +256,7 @@ def test_with_three_ds():
 
     # Make the transaction request
     response = sdk.adyen.create_transaction(transaction_request)
-    print(f"Response: {response.full_provider_response.body}")
+    print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
     assert isinstance(response, TransactionResponse)
@@ -284,7 +280,7 @@ def test_with_three_ds():
 
 
     # Validate other fields
-    assert response.full_provider_response.body is not None
+    assert response.full_provider_response is not None
 
     # Validate network_transaction_id
     assert response.network_transaction_id is not None
@@ -332,13 +328,10 @@ def test_error_expired_card():
     assert response.response_code.category == ErrorCategory.PAYMENT_METHOD_ERROR
     assert response.response_code.code == ErrorType.EXPIRED_CARD.code
         # Verify full provider response
-    assert isinstance(response.full_provider_response.body, dict)
-    assert response.full_provider_response.body['resultCode'] == 'Refused'
-    assert response.full_provider_response.body['refusalReason'] == 'Expired Card'
-    assert response.full_provider_response.body['refusalReasonCode'] == '6'
-    assert response.full_provider_response.headers is not None
-    assert response.full_provider_response.headers['bt-trace-id'] is not None
-    assert response.full_provider_response.headers['bt-trace-id'] != ''
+    assert isinstance(response.full_provider_response, dict)
+    assert response.full_provider_response['resultCode'] == 'Refused'
+    assert response.full_provider_response['refusalReason'] == 'Expired Card'
+    assert response.full_provider_response['refusalReasonCode'] == '6'
 
     assert response.basis_theory_extras is not None
     assert response.basis_theory_extras.trace_id is not None
@@ -389,13 +382,12 @@ def test_error_invalid_api_key():
     assert response.provider_errors[0] == 'HTTP Status Response - Unauthorized'
     
     # Verify full provider response
-    assert response.full_provider_response.body['status'] == 401
-    assert response.full_provider_response.body['errorCode'] == '000'
-    assert response.full_provider_response.body['errorType'] == 'security'
-    assert response.full_provider_response.body['message'] == 'HTTP Status Response - Unauthorized'
+    assert response.full_provider_response['status'] == 401
+    assert response.full_provider_response['errorCode'] == '000'
+    assert response.full_provider_response['errorType'] == 'security'
+    assert response.full_provider_response['message'] == 'HTTP Status Response - Unauthorized'
 
         # Verify full provider response
-    assert response.full_provider_response.headers is not None
     assert response.basis_theory_extras is not None
 
 def test_token_intents_charge_not_storing_card_on_file(): 
@@ -419,7 +411,7 @@ def test_token_intents_charge_not_storing_card_on_file():
 
     # Make the transaction request
     response = sdk.adyen.create_transaction(transaction_request)
-    print(f"Response: {response.full_provider_response.body}")
+    print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
     assert response.reference == transaction_request.reference
@@ -438,8 +430,8 @@ def test_token_intents_charge_not_storing_card_on_file():
     assert response.source.provisioned is None
 
     # Validate other fields
-    assert response.full_provider_response.body is not None
-    assert isinstance(response.full_provider_response.body, dict)
+    assert response.full_provider_response is not None
+    assert isinstance(response.full_provider_response, dict)
 
     # Validate network_transaction_id
     assert response.network_transaction_id is not None
@@ -471,7 +463,7 @@ def test_processor_token_charge_not_storing_card_on_file():
 
     # Make the transaction request
     response = sdk.adyen.create_transaction(transaction_request)
-    print(f"Response: {response.full_provider_response.body}")
+    print(f"Response: {response.full_provider_response}")
 
     # Validate response structure
     assert response.reference == transaction_request.reference
@@ -489,8 +481,8 @@ def test_processor_token_charge_not_storing_card_on_file():
     assert response.source.id == transaction_request.source.id
     assert response.source.provisioned is None
     # Validate other fields
-    assert response.full_provider_response.body is not None
-    assert isinstance(response.full_provider_response.body, dict)
+    assert response.full_provider_response is not None
+    assert isinstance(response.full_provider_response, dict)
 
     # Validate network_transaction_id
     assert response.network_transaction_id is not None

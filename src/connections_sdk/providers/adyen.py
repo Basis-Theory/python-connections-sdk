@@ -1,6 +1,7 @@
 from typing import Dict, Any, Tuple, Optional, Union, cast
 from datetime import datetime, timezone
 import requests
+from requests.structures import CaseInsensitiveDict
 from deepmerge import always_merger
 from ..models import (
     TransactionRequest,
@@ -23,8 +24,7 @@ from ..models import (
     TransactionResponse,
     TransactionSource,
     ProvisionedSource,
-    ResponseCode,
-    FullProviderResponse
+    ResponseCode
 )
 from ..utils.model_utils import create_transaction_request, validate_required_fields, _basis_theory_extras
 from ..utils.request_client import RequestClient
@@ -231,7 +231,7 @@ class AdyenClient:
 
         return payload
 
-    def _transform_adyen_response(self, response_data: Dict[str, Any], request: TransactionRequest, headers: Dict[str, str]) -> TransactionResponse:
+    def _transform_adyen_response(self, response_data: Dict[str, Any], request: TransactionRequest, headers: CaseInsensitiveDict[str]) -> TransactionResponse:
         """Transform Adyen response to our standardized format."""
         transaction_response = TransactionResponse(
             id=str(response_data.get("pspReference")),
@@ -253,10 +253,7 @@ class AdyenClient:
                 id=request.source.id,
             ),
             network_transaction_id=str(response_data.get("additionalData", {}).get("networkTxReference")),
-            full_provider_response=FullProviderResponse(
-                headers=headers,
-                body=response_data
-            ),
+            full_provider_response=response_data,
             basis_theory_extras=_basis_theory_extras(headers),
             created_at=datetime.now(timezone.utc)
         )
@@ -271,7 +268,7 @@ class AdyenClient:
 
         return transaction_response
 
-    def _transform_error_response(self, response: requests.Response, response_data: Dict[str, Any], headers: Dict[str, str]) -> ErrorResponse:
+    def _transform_error_response(self, response: requests.Response, response_data: Dict[str, Any], headers: CaseInsensitiveDict[str]) -> ErrorResponse:
         """Transform error responses to our standardized format.
         
         Args:
@@ -297,10 +294,7 @@ class AdyenClient:
                 )
             ],
             provider_errors=[response_data.get("refusalReason") or response_data.get("message", "")],
-            full_provider_response=FullProviderResponse(
-                headers=headers,
-                body=response.json()
-            ),
+            full_provider_response=response_data,
             basis_theory_extras=_basis_theory_extras(headers)
         )
 
@@ -331,7 +325,7 @@ class AdyenClient:
             response_data = response.json()
 
             # Transform the successful response to our format
-            return self._transform_adyen_response(response_data, request_data, dict(response.headers))
+            return self._transform_adyen_response(response_data, request_data, response.headers)
 
         except requests.exceptions.HTTPError as e:
             try:
@@ -339,7 +333,7 @@ class AdyenClient:
             except:
                 error_data = None
 
-            raise TransactionError(self._transform_error_response(e.response, error_data, dict(e.response.headers)))
+            raise TransactionError(self._transform_error_response(e.response, error_data, e.response.headers))
 
 
     def refund_transaction(self, refund_request: RefundRequest) -> RefundResponse:
@@ -397,10 +391,7 @@ class AdyenClient:
                     provider_code=response_data.get('status')
                 ),
                 refunded_transaction_id=response_data.get('paymentPspReference'),
-                full_provider_response=FullProviderResponse(
-                    headers=headers,
-                    body=response_data
-                ),
+                full_provider_response=response_data,
                 created_at=datetime.now(timezone.utc)
             )
 
@@ -410,5 +401,5 @@ class AdyenClient:
             except:
                 error_data = None
 
-            raise TransactionError(self._transform_error_response(e.response, error_data, dict(e.response.headers)))
+            raise TransactionError(self._transform_error_response(e.response, error_data, e.response.headers))
 

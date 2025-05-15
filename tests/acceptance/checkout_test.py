@@ -164,13 +164,9 @@ def test_storing_card_on_file():
     assert len(response.network_transaction_id) > 0
 
     # Validate other fields
-    assert response.full_provider_response.body is not None
+    assert response.full_provider_response is not None
     
     assert response.created_at is not None
-
-    assert response.full_provider_response.headers is not None
-    assert response.full_provider_response.headers['bt-trace-id'] is not None
-    assert response.full_provider_response.headers['bt-trace-id'] != ''
 
     assert response.basis_theory_extras is not None
     assert response.basis_theory_extras.trace_id is not None
@@ -242,7 +238,7 @@ def test_storing_card_on_file_zero_dollar_amount():
     assert len(response.network_transaction_id) > 0
 
     # Validate other fields
-    assert response.full_provider_response.body is not None
+    assert response.full_provider_response is not None
     
     assert response.created_at is not None
 
@@ -295,7 +291,7 @@ def test_not_storing_card_on_file():
     assert response.source.provisioned is None
 
     # Validate other fields
-    assert response.full_provider_response.body is not None
+    assert response.full_provider_response is not None
 
     # Validate network_transaction_id
     assert response.network_transaction_id is not None
@@ -364,7 +360,7 @@ def test_with_three_ds():
     assert response.source.provisioned is None
 
     # Validate other fields
-    assert response.full_provider_response.body is not None
+    assert response.full_provider_response is not None
 
     # Validate network_transaction_id
     assert response.network_transaction_id is not None
@@ -416,13 +412,9 @@ def test_error_expired_card():
     assert response.response_code.code == ErrorType.EXPIRED_CARD.code
     
     # Verify full provider response
-    assert isinstance(response.full_provider_response.body, dict)
-    assert response.full_provider_response.body['error_type'] == 'processing_error'
-    assert response.full_provider_response.body['error_codes'] == ['card_expired']
-
-    assert response.full_provider_response.headers is not None
-    assert response.full_provider_response.headers['bt-trace-id'] is not None
-    assert response.full_provider_response.headers['bt-trace-id'] != ''
+    assert isinstance(response.full_provider_response, dict)
+    assert response.full_provider_response['error_type'] == 'processing_error'
+    assert response.full_provider_response['error_codes'] == ['card_expired']
 
     assert response.basis_theory_extras is not None
     assert response.basis_theory_extras.trace_id is not None
@@ -474,8 +466,8 @@ def test_error_insufficient_funds():
     assert response.response_code.category == ErrorCategory.PAYMENT_METHOD_ERROR
     assert response.response_code.code == ErrorType.INSUFFICENT_FUNDS.code
     
-    assert response.full_provider_response.body['response_code'] == '20051'
-    assert response.full_provider_response.body['response_summary'] == 'Insufficient Funds'
+    assert response.full_provider_response['response_code'] == '20051'
+    assert response.full_provider_response['response_summary'] == 'Insufficient Funds'
 
 def test_error_invalid_card():
     # Create a Basis Theory token
@@ -515,8 +507,8 @@ def test_error_invalid_card():
     assert response.response_code.category == ErrorCategory.PAYMENT_METHOD_ERROR
     assert response.response_code.code == ErrorType.INVALID_CARD.code
     
-    assert response.full_provider_response.body['response_code'] == '20014'
-    assert response.full_provider_response.body['response_summary'] == 'Invalid Card Number'
+    assert response.full_provider_response['response_code'] == '20014'
+    assert response.full_provider_response['response_summary'] == 'Invalid Card Number'
 
 def test_error_stolen_card():
     # Create a Basis Theory token
@@ -555,8 +547,8 @@ def test_error_stolen_card():
     assert response.response_code.category == ErrorCategory.FRAUD_DECLINE
     assert response.response_code.code == ErrorType.FRAUD.code
     
-    assert response.full_provider_response.body['response_code'] == '30043'
-    assert response.full_provider_response.body['response_summary'] == 'Stolen Card - Pick Up'
+    assert response.full_provider_response['response_code'] == '30043'
+    assert response.full_provider_response['response_summary'] == 'Stolen Card - Pick Up'
 
 
 def test_error_declined():
@@ -599,8 +591,8 @@ def test_error_declined():
     assert response.response_code.category == ErrorCategory.PROCESSING_ERROR
     assert response.response_code.code == ErrorType.REFUSED.code
     
-    assert response.full_provider_response.body['response_code'] == '20005'
-    assert response.full_provider_response.body['response_summary'] == 'Declined - Do Not Honour'
+    assert response.full_provider_response['response_code'] == '20005'
+    assert response.full_provider_response['response_summary'] == 'Declined - Do Not Honour'
 
 
 def test_error_invalid_api_key():
@@ -652,8 +644,7 @@ def test_error_invalid_api_key():
     assert len(error_response.provider_errors) == 0
     
     # Verify full provider response
-    assert error_response.full_provider_response.body is None
-    assert error_response.full_provider_response.headers is not None
+    assert error_response.full_provider_response is None
     assert error_response.basis_theory_extras is not None
 
 def test_token_intents_charge_not_storing_card_on_file(): 
@@ -706,7 +697,7 @@ def test_token_intents_charge_not_storing_card_on_file():
     assert response.source.provisioned is None
 
     # Validate other fields
-    assert response.full_provider_response.body is not None
+    assert response.full_provider_response is not None
 
     # Validate network_transaction_id
     assert response.network_transaction_id is not None
@@ -791,7 +782,7 @@ def test_processor_token_charge_not_storing_card_on_file():
     assert response.source.provisioned.id == token_id
 
     # Validate other fields
-    assert response.full_provider_response.body is not None
+    assert response.full_provider_response is not None
 
     # Validate network_transaction_id
     assert response.network_transaction_id is not None

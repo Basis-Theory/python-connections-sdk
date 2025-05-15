@@ -70,4 +70,4 @@ def test_error_invalid_api_key():
     assert len(error.error_response.error_codes) == 1
     assert error.error_response.error_codes[0].code == ErrorType.BT_UNAUTHENTICATED.code
     assert error.error_response.provider_errors == []
-    assert error.error_response.full_provider_response.body['proxy_error']['detail'] == 'The BT-API-KEY header is required'
+    assert error.error_response.full_provider_response['proxy_error']['detail'] == 'The BT-API-KEY header is required'

@@ -179,12 +179,6 @@ class ResponseCode:
     category: str
     code: str
 
-@dataclass 
-class FullProviderResponse:
-    headers: Dict[str, str]
-    body: Dict[str, Any]
-
-
 @dataclass
 class BasisTheoryExtras:
     trace_id: str
@@ -198,7 +192,7 @@ class TransactionResponse:
     status: TransactionStatus
     response_code: ResponseCode
     source: TransactionSource
-    full_provider_response: FullProviderResponse
+    full_provider_response: Dict[str, Any]
     created_at: datetime
     network_transaction_id: Optional[str] = None 
     basis_theory_extras: Optional[BasisTheoryExtras] = None
@@ -209,7 +203,7 @@ class RefundResponse:
     reference: str
     amount: Amount
     status: TransactionStatus
-    full_provider_response: FullProviderResponse
+    full_provider_response: Dict[str, Any]
     created_at: datetime
     refunded_transaction_id: Optional[str] = None
 
@@ -222,6 +216,6 @@ class ErrorCode:
 class ErrorResponse:
     error_codes: List[ErrorCode]
     provider_errors: List[str]
-    full_provider_response: FullProviderResponse
+    full_provider_response: Dict[str, Any]
     basis_theory_extras: Optional[BasisTheoryExtras] = None
     

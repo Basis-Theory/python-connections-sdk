@@ -5,7 +5,7 @@ import requests
 import os
 import json
 from json.decoder import JSONDecodeError
-
+from requests.structures import CaseInsensitiveDict
 from ..models import (
     TransactionRequest,
     Amount,
@@ -27,8 +27,7 @@ from ..models import (
     TransactionResponse,
     TransactionSource,
     ProvisionedSource,
-    ResponseCode,
-    FullProviderResponse
+    ResponseCode
 )
 from connections_sdk.exceptions import TransactionError
 from ..utils.model_utils import create_transaction_request, validate_required_fields, _basis_theory_extras
@@ -464,7 +463,7 @@ class CheckoutClient:
 
         return payload
 
-    def _transform_checkout_response(self, response_data: Dict[str, Any], request: TransactionRequest, headers: Dict[str, str], error_data: Optional[Dict[str, Any]] = None) -> TransactionResponse:
+    def _transform_checkout_response(self, response_data: Dict[str, Any], request: TransactionRequest, headers: CaseInsensitiveDict[str], error_data: Optional[Dict[str, Any]] = None) -> TransactionResponse:
         """Transform Checkout.com response to our standardized format."""
         response_code = ResponseCode(
             category=CHECKOUT_NUMERICAL_CODE_MAPPING.get(str(response_data.get("response_code")), ErrorType.OTHER).category,
@@ -499,10 +498,7 @@ class CheckoutClient:
                     id=str(response_data.get("source", {}).get("id"))
                 ) if response_data.get("source", {}).get("id") else None
             ),
-            full_provider_response=FullProviderResponse(
-                headers=headers,
-                body=response_data
-            ),
+            full_provider_response=response_data,
             basis_theory_extras=_basis_theory_extras(headers),
             created_at=datetime.fromisoformat(response_data["processed_on"].split(".")[0] + "+00:00") if response_data.get("processed_on") else datetime.now(timezone.utc),
             network_transaction_id=response_data.get("scheme_id")
@@ -545,10 +541,7 @@ class CheckoutClient:
             error_codes=error_codes,
             provider_errors=provider_errors,
             basis_theory_extras=_basis_theory_extras(headers),
-            full_provider_response=FullProviderResponse(
-                headers=headers,
-                body=error_data
-            )
+            full_provider_response=error_data
         )
 
 
@@ -587,14 +580,14 @@ class CheckoutClient:
                 error_data = e.response.json()
 
                 if "card_expired" in error_data.get("error_codes", []) or "card_disabled" in error_data.get("error_codes", []):
-                    return self._transform_checkout_response(error_data, request_data, dict(e.response.headers), error_data)
+                    return self._transform_checkout_response(error_data, request_data, e.response.headers, error_data)
             except:
                 error_data = None
 
-            raise TransactionError(self._transform_error_response_object(e.response, error_data, dict(e.response.headers)))
+            raise TransactionError(self._transform_error_response_object(e.response, error_data, e.response.headers))
 
         # Transform response to SDK format
-        return self._transform_checkout_response(response.json(), request_data, dict(response.headers))
+        return self._transform_checkout_response(response.json(), request_data, response.headers)
 
     def refund_transaction(self, refund_request: RefundRequest) -> RefundResponse:
         """
@@ -629,7 +622,6 @@ class CheckoutClient:
             )
 
             response_data = response.json()
-            headers = dict(response.headers)
 
             # Transform the response to a standardized format
             return RefundResponse(
@@ -637,10 +629,7 @@ class CheckoutClient:
                 reference=response_data.get('reference'),
                 amount=Amount(value=response_data.get('amount'), currency=response_data.get('currency')),
                 status=TransactionStatus(code=TransactionStatusCode.RECEIVED, provider_code=""),
-                full_provider_response=FullProviderResponse(
-                    headers=headers,
-                    body=response_data
-                ),
+                full_provider_response=response_data,
                 created_at=datetime.now(timezone.utc),
                 refunded_transaction_id=refund_request.original_transaction_id
             )
@@ -651,4 +640,4 @@ class CheckoutClient:
             except:
                 error_data = None
 
-            raise TransactionError(self._transform_error_response_object(e.response, error_data, dict(e.response.headers)))
+            raise TransactionError(self._transform_error_response_object(e.response, error_data, e.response.headers))
