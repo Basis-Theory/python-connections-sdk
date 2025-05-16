@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v3.0.0...v3.1.0) (2025-05-16)
+
+
+### Features
+
+* moving to suggested property for NTTxId ([#43](https://github.com/Basis-Theory/python-connections-sdk/issues/43)) ([e69ba68](https://github.com/Basis-Theory/python-connections-sdk/commit/e69ba68cd98b150672134fbad0008b8bccf654b0))
+
 # [3.0.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v2.1.0...v3.0.0) (2025-05-15)
 
 
