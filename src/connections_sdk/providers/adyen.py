@@ -123,7 +123,8 @@ class AdyenClient:
             "merchantAccount": self.merchant_account,
             "shopperInteraction": "ContAuth" if request.merchant_initiated else "Ecommerce",
             "storePaymentMethod": request.source.store_with_provider,
-            "channel": request.customer.channel if request.customer else 'web'
+            "channel": request.customer.channel if request.customer else 'web',
+            "additionalData": {}
         }
 
         if request.metadata:
@@ -157,7 +158,7 @@ class AdyenClient:
                 payment_method["holderName"] = request.source.holder_name
 
         if request.previous_network_transaction_id:
-            payment_method["networkPaymentReference"] = request. previous_network_transaction_id
+            payment_method["additionalData"]["networkTxReference"] = request. previous_network_transaction_id
 
         payload["paymentMethod"] = payment_method
 
