@@ -485,6 +485,7 @@ def test_processor_token_charge_not_storing_card_on_file():
     assert response.source.type == SourceType.PROCESSOR_TOKEN
     assert response.source.id == transaction_request.source.id
     assert response.source.provisioned is None
+    
     # Validate other fields
     assert response.full_provider_response is not None
     assert isinstance(response.full_provider_response, dict)

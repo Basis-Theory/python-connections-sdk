@@ -151,3 +151,75 @@ def test_errors():
 
             # Verify the request was made
             mock_request.assert_called_once()
+
+
+def test_idempotency_key():
+    """Test that idempotency key is included in headers"""
+    # Initialize the SDK
+    sdk = Connections({
+        'is_test': True,
+        'bt_api_key': 'test_bt_api_key',
+        'provider_config': {
+            'adyen': {
+                'api_key': 'test_adyen_api_key',
+                'merchant_account': 'test_merchant',
+            }
+        }
+    })
+
+    # Create mock response data
+    mock_response_data = {
+        "pspReference": "8837544667111111", 
+        "merchantReference": "test_reference",
+        "amount": {
+            "value": 1000,
+            "currency": "USD"
+        },
+        "resultCode": "Authorised",
+        "additionalData": {}
+    }
+
+    # Create a mock response
+    mock_response = MagicMock()
+    mock_response.json.return_value = mock_response_data
+    mock_response.status_code = 200
+    mock_response.ok = True
+    mock_response.headers = {}
+
+    # Create a test transaction request with network reference
+    transaction_request = TransactionRequest(
+        reference='test_reference',
+        type=RecurringType.ONE_TIME,
+        amount=Amount(
+            value=1000,
+            currency='USD'
+        ),
+        source=Source(
+            type=SourceType.PROCESSOR_TOKEN,
+            id='test_token_id',
+            store_with_provider=False
+        ),
+        customer=Customer(
+            reference='test_customer_ref'
+        ),
+        previous_network_transaction_id='network_ref_123'
+    )
+
+    # Test with idempotency key
+    idempotency_key = 'test-idempotency-key-123'
+    
+    # Mock the session.request method
+    with patch('requests.request', return_value=mock_response) as mock_request:
+        response = sdk.adyen.create_transaction(transaction_request, idempotency_key=idempotency_key)
+
+        # Verify the request was made
+        mock_request.assert_called_once()
+        
+        # Get the call arguments
+        call_args = mock_request.call_args
+        headers = call_args[1]['headers']
+        payload = call_args[1]['json']
+        
+        # Verify idempotency key is in headers
+        assert 'idempotency-key' in headers
+        assert headers['idempotency-key'] == idempotency_key

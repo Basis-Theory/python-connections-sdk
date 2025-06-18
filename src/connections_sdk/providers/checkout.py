@@ -395,8 +395,10 @@ class CheckoutClient:
                 "expiry_month": f"{{{{ {token_prefix}: {request.source.id} | json: '$.data.expiration_month'}}}}",
                 "expiry_year": f"{{{{ {token_prefix}: {request.source.id} | json: '$.data.expiration_year'}}}}",
                 "cvv": f"{{{{ {token_prefix}: {request.source.id} | json: '$.data.cvc'}}}}",
-                "store_for_future_use": request.source.store_with_provider
+                "store_for_future_use": request.source.store_with_provider,
+                "name": request.source.holder_name
             }
+            
             payload["source"] = source_data
 
         # Add customer information if provided
@@ -564,7 +566,7 @@ class CheckoutClient:
         )
 
 
-    def create_transaction(self, request_data: TransactionRequest) -> TransactionResponse:
+    def create_transaction(self, request_data: TransactionRequest, idempotency_key: Optional[str] = None) -> TransactionResponse:
         """Process a payment transaction through Checkout.com's API directly or via Basis Theory's proxy."""
         validate_required_fields(request_data)
         # Transform request to Checkout.com format
@@ -575,6 +577,10 @@ class CheckoutClient:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
+        
+        # Add idempotency key if provided
+        if idempotency_key:
+            headers["cko-idempotency-key"] = idempotency_key
 
         try:
             # Make request to Checkout.com
@@ -587,8 +593,6 @@ class CheckoutClient:
             )
 
             response_data = response.json()
-            
-            print(f"Response data: {response_data}")
             
         except requests.exceptions.HTTPError as e:
             # Check if this is a BT error
@@ -608,7 +612,7 @@ class CheckoutClient:
         # Transform response to SDK format
         return self._transform_checkout_response(response.json(), request_data, response.headers)
 
-    def refund_transaction(self, refund_request: RefundRequest) -> RefundResponse:
+    def refund_transaction(self, refund_request: RefundRequest, idempotency_key: Optional[str] = None) -> RefundResponse:
         """
         Refund a payment transaction through Checkout.com's API.
         
@@ -622,6 +626,9 @@ class CheckoutClient:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
+
+        if idempotency_key:
+            headers["cko-idempotency-key"] = idempotency_key
 
         # Prepare the refund payload
         payload = {
