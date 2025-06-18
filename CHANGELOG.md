@@ -1,3 +1,10 @@
+# [3.2.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v3.1.0...v3.2.0) (2025-06-18)
+
+
+### Features
+
+* updating docs ([#45](https://github.com/Basis-Theory/python-connections-sdk/issues/45)) ([13fa810](https://github.com/Basis-Theory/python-connections-sdk/commit/13fa8109ce3b6cddfbc05ff089fb10cc6f9f7a89))
+
 # [3.1.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v3.0.0...v3.1.0) (2025-05-16)
 
 
