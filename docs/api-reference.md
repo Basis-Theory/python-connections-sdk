@@ -76,7 +76,7 @@ sdk.[provider].create_transaction(TransactionRequest(
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | request_data | TransactionRequest | true | - | The details to create a transaction |
-| idempotency_key | string | false | - | Idempotency to send to each provider |
+| idempotency_key | string | false | - | Idempotency Key to send to each provider |
 
 ### Response
 
@@ -114,7 +114,7 @@ sdk.[provider].refund_transaction(RefundRequest(
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | request_data | RefundRequest | true | - | Request to create a refund |
-| idempotency_key | string | false | - | Idempotency to send to each provider |
+| idempotency_key | string | false | - | Idempotency Key to send to each provider |
 
 ### Response
 
