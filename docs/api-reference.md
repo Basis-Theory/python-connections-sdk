@@ -27,7 +27,7 @@ sdk = Connections({
 Process a payment transaction through a provider, find all of the providers available in our [Providers](./providers/index.md) documentation. Each provider uses the same method signature, request model, and response model. Keep in mind - Each provider may have a unique combination of these fields to accomplish the same goal (e.g. Charging a card-on-file for a subscription vs a customer initiated transaction for two different providers).
 
 ```python
-sdk.[provider].transaction(TransactionRequest(
+sdk.[provider].create_transaction(TransactionRequest(
     reference='merchant-reference-123',
     type=RecurringType.UNSCHEDULED,
     merchant_initiated=True,
@@ -75,16 +75,8 @@ sdk.[provider].transaction(TransactionRequest(
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| reference | str | Yes | - | Unique transaction reference |
-| type | RecurringType | Yes | - | Transaction type |
-| amount | Amount | Yes | - | Transaction amount in minor currency units |
-| source | Source | Yes | - | Payment source |
-| customer | Customer | No | None | Customer information |
-| three_ds | ThreeDS | No | None | 3DS authentication data |
-| merchant_initiated | bool | No | False | Whether the transaction is merchant-initiated |
-| previous_network_transaction_id | str | No | None | Previous network transaction ID |
-| override_provider_properties | Dict[str, Any] | No | None | Appends and replaces any pre-mapped provider properties in the provider request |
-| metadata | Dict[str, Any] | No | None | Metadata to be associated with the transaction |
+| request_data | TransactionRequest | true | - | The details to create a transaction |
+| idempotency_key | string | false | - | Idempotency to send to each provider |
 
 ### Response
 
@@ -121,10 +113,8 @@ sdk.[provider].refund_transaction(RefundRequest(
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| original_transaction_id | str | Yes | - | ID of the original transaction to refund |
-| reference | str | Yes | - | Unique refund reference |
-| amount | Amount | Yes | - | Amount to refund |
-| reason | RefundReason | No | None | Reason for the refund |
+| request_data | RefundRequest | true | - | Request to create a refund |
+| idempotency_key | string | false | - | Idempotency to send to each provider |
 
 ### Response
 
@@ -140,6 +130,30 @@ sdk.[provider].refund_transaction(RefundRequest(
 
 
 ## Request Models
+
+### RefundRequest
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| original_transaction_id | str | Yes | - | ID of the original transaction to refund |
+| reference | str | Yes | - | Unique refund reference |
+| amount | Amount | Yes | - | Amount to refund |
+| reason | RefundReason | No | None | Reason for the refund |
+
+### TransactionRequest
+
+| Parameter | Type | Required | Default | Description |
+| reference | str | Yes | - | Unique transaction reference |
+| type | RecurringType | Yes | - | Transaction type |
+| amount | Amount | Yes | - | Transaction amount in minor currency units |
+| source | Source | Yes | - | Payment source |
+| customer | Customer | No | None | Customer information |
+| three_ds | ThreeDS | No | None | 3DS authentication data |
+| merchant_initiated | bool | No | False | Whether the transaction is merchant-initiated |
+| previous_network_transaction_id | str | No | None | Previous network transaction ID |
+| override_provider_properties | Dict[str, Any] | No | None | Appends and replaces any pre-mapped provider properties in the provider request |
+| metadata | Dict[str, Any] | No | None | Metadata to be associated with the transaction |
+
 
 ### RecurringType
 

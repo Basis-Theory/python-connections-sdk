@@ -158,7 +158,7 @@ class AdyenClient:
                 payment_method["holderName"] = request.source.holder_name
 
         if request.previous_network_transaction_id:
-            payment_method["additionalData"]["networkTxReference"] = request. previous_network_transaction_id
+            payload["networkPaymentReference"] = request.previous_network_transaction_id
 
         payload["paymentMethod"] = payment_method
 
@@ -311,7 +311,7 @@ class AdyenClient:
         )
 
 
-    def create_transaction(self, request_data: TransactionRequest) -> TransactionResponse:
+    def create_transaction(self, request_data: TransactionRequest, idempotency_key: Optional[str] = None) -> TransactionResponse:
         """Process a payment transaction through Adyen's API directly or via Basis Theory's proxy."""
         validate_required_fields(request_data)
 
@@ -323,6 +323,10 @@ class AdyenClient:
             "X-API-Key": self.api_key,
             "Content-Type": "application/json"
         }
+        
+        # Add idempotency key if provided
+        if idempotency_key:
+            headers["idempotency-key"] = idempotency_key
 
         # Make the request (using proxy for BT tokens, direct for processor tokens)
         try:
@@ -348,7 +352,7 @@ class AdyenClient:
             raise TransactionError(self._transform_error_response(e.response, error_data, e.response.headers))
 
 
-    def refund_transaction(self, refund_request: RefundRequest) -> RefundResponse:
+    def refund_transaction(self, refund_request: RefundRequest, idempotency_key: Optional[str] = None) -> RefundResponse:
         """
         Refund a payment transaction through Adyen's API.
         
@@ -364,6 +368,10 @@ class AdyenClient:
             "Content-Type": "application/json"
         }
 
+        # Add idempotency key if provided
+        if idempotency_key:
+            headers["idempotency-key"] = idempotency_key
+            
         # Prepare the refund payload
         payload = {
             "merchantAccount": self.merchant_account,
