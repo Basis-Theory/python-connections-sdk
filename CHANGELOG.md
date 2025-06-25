@@ -1,3 +1,10 @@
+## [3.2.1](https://github.com/Basis-Theory/python-connections-sdk/compare/v3.2.0...v3.2.1) (2025-06-25)
+
+
+### Bug Fixes
+
+* moving back to networkTxReference on additional lData ([#46](https://github.com/Basis-Theory/python-connections-sdk/issues/46)) ([17ca885](https://github.com/Basis-Theory/python-connections-sdk/commit/17ca8850643d7069fc925fc61dace5d38e721795))
+
 # [3.2.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v3.1.0...v3.2.0) (2025-06-18)
 
 
