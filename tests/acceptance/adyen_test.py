@@ -108,6 +108,7 @@ def test_storing_card_on_file():
             store_with_provider=True,
             holder_name='John Doe'
         ),
+        previous_network_transaction_id='1234567890',
         customer=Customer(
             reference=str(uuid.uuid4()),
             first_name='John',

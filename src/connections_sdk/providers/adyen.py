@@ -124,7 +124,7 @@ class AdyenClient:
             "shopperInteraction": "ContAuth" if request.merchant_initiated else "Ecommerce",
             "storePaymentMethod": request.source.store_with_provider,
             "channel": request.customer.channel if request.customer else 'web',
-            "additionalData": {}
+            
         }
 
         if request.metadata:
@@ -141,6 +141,7 @@ class AdyenClient:
                 payload["recurringProcessingModel"] = recurring_type
 
         # Process source based on type
+        
         payment_method: Dict[str, Any] = {"type": "scheme"}
         
         if request.source.type == SourceType.PROCESSOR_TOKEN:
@@ -157,10 +158,14 @@ class AdyenClient:
         if request.source.holder_name:
                 payment_method["holderName"] = request.source.holder_name
 
-        if request.previous_network_transaction_id:
-            payload["networkPaymentReference"] = request.previous_network_transaction_id
-
         payload["paymentMethod"] = payment_method
+
+        additionalData: Dict[str, Any] = {}
+        
+        if request.previous_network_transaction_id:
+            additionalData["networkTxReference"] = request.previous_network_transaction_id
+        
+        payload["additionalData"] = additionalData
 
         # Add customer information
         if request.customer:
