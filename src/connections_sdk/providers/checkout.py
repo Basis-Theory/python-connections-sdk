@@ -447,11 +447,12 @@ class CheckoutClient:
             source["billing_descriptor"] = billing_descriptor
 
         # Add 3DS information if provided
-        if request.three_ds:
-            three_ds_data: Dict[str, Any] = {
-                "enabled": True
-            }
+        three_ds_data: Dict[str, Any] = {
+            "enabled": False,
+            "allow_upgrade": False
+        }
 
+        if request.three_ds:
             if request.three_ds.authentication_value:
                 three_ds_data["cryptogram"] = request.three_ds.authentication_value
             if request.three_ds.eci:
@@ -476,7 +477,7 @@ class CheckoutClient:
                 if checkout_challenge_indicator: # Only add if a valid mapping exists
                     three_ds_data["challenge_indicator"] = checkout_challenge_indicator
 
-            payload["3ds"] = three_ds_data
+        payload["3ds"] = three_ds_data
 
         # Override/merge any provider properties if specified
         if request.override_provider_properties:

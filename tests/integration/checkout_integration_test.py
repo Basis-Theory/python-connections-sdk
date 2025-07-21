@@ -14,7 +14,8 @@ from connections_sdk.models import (
     TransactionRequest,
     Amount,
     Source,
-    Customer
+    Customer,
+    ThreeDS
 )
 from connections_sdk.exceptions import TransactionError, TransactionError
 
@@ -212,5 +213,4 @@ def test_idempotency_key():
         # Verify idempotency key is in headers
         assert 'cko-idempotency-key' in headers
         assert headers['cko-idempotency-key'] == idempotency_key
-
 
