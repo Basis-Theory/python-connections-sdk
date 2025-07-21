@@ -339,7 +339,12 @@ def test_with_three_ds():
             authentication_status_reason_code='01',
             threeds_version='2.2.0',
             authentication_status_reason='sample_auth_status_reason'
-        )
+        ),
+        override_provider_properties={
+            "3ds": {
+                "enabled": True
+            }
+        }
     )
 
     # Make the transaction request
@@ -460,8 +465,12 @@ def test_error_three_ds_not_required():
             )
         ),
         three_ds=ThreeDS(
-        )
-
+        ),
+        override_provider_properties={
+            "3ds": {
+                "enabled": False
+            }
+        }
     )
 
     # Make the transaction request and expect a TransactionError
