@@ -1,3 +1,10 @@
+## [3.2.2](https://github.com/Basis-Theory/python-connections-sdk/compare/v3.2.1...v3.2.2) (2026-02-04)
+
+
+### Bug Fixes
+
+* move faker to test deps ([#49](https://github.com/Basis-Theory/python-connections-sdk/issues/49)) ([2ede370](https://github.com/Basis-Theory/python-connections-sdk/commit/2ede37013acd8fc9e021b58f4e7e008681f0b9ab))
+
 ## [3.2.1](https://github.com/Basis-Theory/python-connections-sdk/compare/v3.2.0...v3.2.1) (2025-06-25)
 
 
