@@ -24,7 +24,7 @@ from connections_sdk import Connections
 from connections_sdk.models import RecurringType
 
 # Initialize the SDK with your chosen provider
-sdk = Connections.init({
+sdk = Connections({
     'is_test': True,  # Use test environment
     'bt_api_key': 'YOUR_BASIS_THEORY_API_KEY',
     'provider_config': {
@@ -55,7 +55,7 @@ transaction_request = TransactionRequest(
 )
 
 # Process the transaction with your chosen provider
-response = await sdk.adyen.create_transaction(transaction_request)  # Use sdk.<provider>.transaction()
+response = sdk.adyen.create_transaction(transaction_request)  # Use sdk.<provider>.transaction()
 ```
 
 ## Documentation

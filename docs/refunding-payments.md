@@ -21,7 +21,7 @@ refund_request = RefundRequest(
     reason=RefundReason.CUSTOMER_REQUEST  # Optional
 )
 
-response = await sdk.adyen.refund_transaction(refund_request)
+response = sdk.adyen.refund_transaction(refund_request)
 ```
 
 The `reason` field is optional and can be one of:
@@ -41,7 +41,7 @@ The refund response will contain:
 - `status` - The status of the refund
 - `refunded_transaction_id` - The ID of the original transaction that was refunded
 - `created_at` - When the refund was processed
-- `full_provider_response` - The complete response from the payment provider
+- `full_provider_response` - An object containing the detailed response from the payment provider.
 
 We strongly suggest you store the following fields in your database:
 - Refund ID (`id`)

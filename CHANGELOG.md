@@ -1,3 +1,86 @@
+## [3.2.2](https://github.com/Basis-Theory/python-connections-sdk/compare/v3.2.1...v3.2.2) (2026-02-04)
+
+
+### Bug Fixes
+
+* move faker to test deps ([#49](https://github.com/Basis-Theory/python-connections-sdk/issues/49)) ([2ede370](https://github.com/Basis-Theory/python-connections-sdk/commit/2ede37013acd8fc9e021b58f4e7e008681f0b9ab))
+
+## [3.2.1](https://github.com/Basis-Theory/python-connections-sdk/compare/v3.2.0...v3.2.1) (2025-06-25)
+
+
+### Bug Fixes
+
+* moving back to networkTxReference on additional lData ([#46](https://github.com/Basis-Theory/python-connections-sdk/issues/46)) ([17ca885](https://github.com/Basis-Theory/python-connections-sdk/commit/17ca8850643d7069fc925fc61dace5d38e721795))
+
+# [3.2.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v3.1.0...v3.2.0) (2025-06-18)
+
+
+### Features
+
+* updating docs ([#45](https://github.com/Basis-Theory/python-connections-sdk/issues/45)) ([13fa810](https://github.com/Basis-Theory/python-connections-sdk/commit/13fa8109ce3b6cddfbc05ff089fb10cc6f9f7a89))
+
+# [3.1.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v3.0.0...v3.1.0) (2025-05-16)
+
+
+### Features
+
+* moving to suggested property for NTTxId ([#43](https://github.com/Basis-Theory/python-connections-sdk/issues/43)) ([e69ba68](https://github.com/Basis-Theory/python-connections-sdk/commit/e69ba68cd98b150672134fbad0008b8bccf654b0))
+
+# [3.0.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v2.1.0...v3.0.0) (2025-05-15)
+
+
+### Features
+
+* adding additional CKO error code mappings, Error Response Updates, and BT Trace Id ([#42](https://github.com/Basis-Theory/python-connections-sdk/issues/42)) ([1dbd579](https://github.com/Basis-Theory/python-connections-sdk/commit/1dbd579b97ddd821bf6631d249ccef1676884e3f))
+
+
+### BREAKING CHANGES
+
+* Returning processing errors in TransactionResponse
+
+# [2.1.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v2.0.0...v2.1.0) (2025-05-13)
+
+
+### Features
+
+* 3DS enhancements ([#41](https://github.com/Basis-Theory/python-connections-sdk/issues/41)) ([784abd5](https://github.com/Basis-Theory/python-connections-sdk/commit/784abd5fa6d3cc8028cbb52d1491ba2af4d146b4))
+
+# [2.0.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v1.1.0...v2.0.0) (2025-04-18)
+
+
+### Bug Fixes
+
+* fixing build pipeline versions ([#40](https://github.com/Basis-Theory/python-connections-sdk/issues/40)) ([fea59c5](https://github.com/Basis-Theory/python-connections-sdk/commit/fea59c579fee900854c3d7653a9fe7a65ab181a0))
+
+
+### Features
+
+* removing singleton to avoid shared state ([#39](https://github.com/Basis-Theory/python-connections-sdk/issues/39)) ([50023b0](https://github.com/Basis-Theory/python-connections-sdk/commit/50023b0a5c4806f612271bb3a82cd3a13aee19b3))
+
+
+### BREAKING CHANGES
+
+* Moving from `Connections.init(...)` to `Connections(...)` to load SDK config
+
+# [1.1.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v1.0.0...v1.1.0) (2025-04-15)
+
+
+### Features
+
+* fixing gap to allow 0 amounts ([#38](https://github.com/Basis-Theory/python-connections-sdk/issues/38)) ([d10b087](https://github.com/Basis-Theory/python-connections-sdk/commit/d10b087b7fc4fcc640ef12eb1543a10f180258c5))
+
+# [1.0.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v0.1.0...v1.0.0) (2025-03-12)
+
+
+### Features
+
+* moving to sync methods vs async ([#36](https://github.com/Basis-Theory/python-connections-sdk/issues/36)) ([845da24](https://github.com/Basis-Theory/python-connections-sdk/commit/845da24b594adccc978fa228d3c5bd6e66e9a034))
+
+
+### BREAKING CHANGES
+
+* will no longer need to await or asyncio
+
 # [0.1.0](https://github.com/Basis-Theory/python-connections-sdk/compare/v0.0.1...v0.1.0) (2025-02-12)
 
 

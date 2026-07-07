@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "connections_sdk"
-version = "0.1.0"
+version = "3.2.2"
 description = "A Python SDK for payment processing"
 authors = ["Basis Theory <support@basistheory.com>"]
 readme = "README.md"
@@ -12,13 +12,12 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.8"
 requests = ">=2.32.2"
-faker = "^34.0.0"
 deepmerge = "^2.0"
 
 [tool.poetry.group.test.dependencies]
+faker = "^34.0.0"
 pytest = ">=6.0"
 pytest-cov = ">=2.0"
-pytest-asyncio = "0.20.3"
 python-dotenv = ">=1.0.0"
 mypy = ">=1.0.0"
 types-requests = ">=2.31.0"
