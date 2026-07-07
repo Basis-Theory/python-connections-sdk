@@ -2,7 +2,6 @@
 import os
 import json
 import uuid
-import asyncio
 import pytest
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
@@ -35,13 +34,13 @@ from connections_sdk.models import (
     ErrorCategory,
     ErrorType
 )
-from connections_sdk.exceptions import TransactionError, ValidationError
+from connections_sdk.exceptions import TransactionError
 
 # Load environment variables from .env file
 load_dotenv()
 
 
-async def create_bt_token(card_number: str = "4242424242424242", expiration_year: str = "2030", expiration_month: str = "03", cvc: str = "100"):
+def create_bt_token(card_number: str = "4242424242424242", expiration_year: str = "2030", expiration_month: str = "03", cvc: str = "100"):
     """Create a Basis Theory token for testing."""
     configuration = Configuration(
         api_key=os.getenv('BASISTHEORY_API_KEY')
@@ -63,7 +62,7 @@ async def create_bt_token(card_number: str = "4242424242424242", expiration_year
         })
         return token.id
 
-async def create_bt_token_intent(card_number: str = "4242424242424242", cvc: str = "737"):
+def create_bt_token_intent(card_number: str = "4242424242424242", cvc: str = "737"):
     """Create a Basis Theory token for testing."""
     import requests
 
@@ -88,7 +87,7 @@ async def create_bt_token_intent(card_number: str = "4242424242424242", cvc: str
     return response_data['id']
 
 def get_sdk(processing_channel = os.getenv('CHECKOUT_PROCESSING_CHANNEL'), private_key = os.getenv('CHECKOUT_PRIVATE_KEY')):
-    return Connections.init({
+    return Connections({
         'is_test': True,
         'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
         'provider_config': {
@@ -99,10 +98,9 @@ def get_sdk(processing_channel = os.getenv('CHECKOUT_PROCESSING_CHANNEL'), priva
         }
     })  
 
-@pytest.mark.asyncio
-async def test_storing_card_on_file():
+def test_storing_card_on_file():
     # Create a Basis Theory token
-    token_id = await create_bt_token()
+    token_id = create_bt_token()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk()
@@ -137,7 +135,7 @@ async def test_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -170,11 +168,83 @@ async def test_storing_card_on_file():
     
     assert response.created_at is not None
 
+    assert response.basis_theory_extras is not None
+    assert response.basis_theory_extras.trace_id is not None
+    assert response.basis_theory_extras.trace_id != ''
 
-@pytest.mark.asyncio
-async def test_not_storing_card_on_file():
+def test_storing_card_on_file_zero_dollar_amount():
     # Create a Basis Theory token
-    token_id = await create_bt_token()
+    token_id = create_bt_token()
+
+    # Initialize the SDK with environment variables
+    sdk = get_sdk()
+
+    # Create transaction request
+    transaction_request = TransactionRequest(
+        reference=str(uuid.uuid4()),
+        type=RecurringType.UNSCHEDULED,
+        amount=Amount(
+            value=0,
+            currency='USD'
+        ),
+        source=Source(
+            type=SourceType.BASIS_THEORY_TOKEN,
+            id=token_id,
+            store_with_provider=True,
+            holder_name='John Doe'
+        ),
+        customer=Customer(
+            reference=str(uuid.uuid4()),
+            first_name='John',
+            last_name='Doe',
+            email='john.doe@example.com',
+            address=Address(
+                address_line1='123 Main St',
+                city='New York',
+                state='NY',
+                zip='10001',
+                country='US'
+            )
+        )
+    )
+
+    # Make the transaction request
+    response = sdk.checkout.create_transaction(transaction_request)
+
+    # Validate response structure
+    assert response.id is not None
+    assert response.reference is not None
+    assert response.reference == transaction_request.reference
+    
+    # Validate amount
+    assert response.amount is not None
+    assert response.amount.value is not None
+    assert response.amount.currency == 'USD'
+    
+    # Validate status
+    assert response.status is not None
+    assert response.status.code == TransactionStatusCode.CARD_VERIFIED
+    assert response.status.provider_code is not None
+    
+    # Validate source
+    assert response.source is not None
+    assert response.source.type in [SourceType.BASIS_THEORY_TOKEN]
+    assert response.source.id is not None
+    assert response.source.provisioned is not None
+    assert response.source.provisioned.id is not None
+
+    # Validate network_transaction_id
+    assert response.network_transaction_id is not None
+    assert len(response.network_transaction_id) > 0
+
+    # Validate other fields
+    assert response.full_provider_response is not None
+    
+    assert response.created_at is not None
+
+def test_not_storing_card_on_file():
+    # Create a Basis Theory token
+    token_id = create_bt_token()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk()
@@ -197,7 +267,7 @@ async def test_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -227,10 +297,9 @@ async def test_not_storing_card_on_file():
     assert response.network_transaction_id is not None
     assert len(response.network_transaction_id) > 0
 
-@pytest.mark.asyncio
-async def test_with_three_ds():
+def test_with_three_ds():
     # Create a Basis Theory token
-    token_id = await create_bt_token("4242424242424242")
+    token_id = create_bt_token("4242424242424242")
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -261,13 +330,20 @@ async def test_with_three_ds():
         three_ds=ThreeDS(
             eci='05',
             authentication_value='AAABCZIhcQAAAABZlyFxAAAAAAA=',
-            xid='AAABCZIhcQAAAABZlyFxAAAAAAA=',
-            version='2.2.0'
+            version='2.2.0',
+            ds_transaction_id='AAABCZIhcQAAAABZlyFxAAAAAAA=',
+            directory_status_code='sample_directory_status_code',
+            authentication_status_code='Y',
+            challenge_cancel_reason_code='sample_cancel_reason',
+            challenge_preference_code='sample_preference_code',
+            authentication_status_reason_code='01',
+            threeds_version='2.2.0',
+            authentication_status_reason='sample_auth_status_reason'
         )
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -298,10 +374,9 @@ async def test_with_three_ds():
     assert isinstance(response.network_transaction_id, str)
     assert len(response.network_transaction_id) > 0
 
-@pytest.mark.asyncio
-async def test_error_expired_card():
+def test_error_expired_card():
     # Create a Basis Theory token
-    token_id = await create_bt_token("4724117215951699", "2024", "03", "100")
+    token_id = create_bt_token("4532446037926437", "2024", "03", "100")
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -330,38 +405,206 @@ async def test_error_expired_card():
         )
     )
 
-    print(f"Transaction request: {transaction_request}")
-
     # Make the transaction request and expect a TransactionError
-    with pytest.raises(TransactionError) as exc_info:
-        await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
 
-    # Get the error response from the exception
-    error_response = exc_info.value.error_response
-    print(f"Error Response: {json.dumps(error_response.full_provider_response, indent=2)}")
+    # Validate source
+    assert response.source is not None
+    assert response.source.type in [SourceType.BASIS_THEORY_TOKEN]
+    assert response.source.id is not None
+    assert response.source.provisioned is None
 
-    # Validate error response structure
-    assert len(error_response.error_codes) == 1
-    
     # Verify exact error code values
-    error = error_response.error_codes[0]
-    assert error.category == ErrorCategory.PAYMENT_METHOD_ERROR
-    assert error.code == ErrorType.EXPIRED_CARD.code
-    
-    # Verify provider errors
-    assert isinstance(error_response.provider_errors, list)
-    assert len(error_response.provider_errors) == 1
-    assert error_response.provider_errors == ['card_expired']
+    assert response.response_code.category == ErrorCategory.PAYMENT_METHOD_ERROR
+    assert response.response_code.code == ErrorType.EXPIRED_CARD.code
     
     # Verify full provider response
-    assert isinstance(error_response.full_provider_response, dict)
-    assert error_response.full_provider_response['error_type'] == 'processing_error'
-    assert error_response.full_provider_response['error_codes'] == ['card_expired']
+    assert isinstance(response.full_provider_response, dict)
+    assert response.full_provider_response['error_type'] == 'processing_error'
+    assert response.full_provider_response['error_codes'] == ['card_expired']
 
-@pytest.mark.asyncio
-async def test_error_invalid_api_key():
+    assert response.basis_theory_extras is not None
+    assert response.basis_theory_extras.trace_id is not None
+    assert response.basis_theory_extras.trace_id != ''
+
+
+
+def test_error_insufficient_funds():
     # Create a Basis Theory token
-    token_id = await create_bt_token()
+    token_id = create_bt_token("4544249167673670", "2030", "03", "100")
+
+    # Initialize the SDK with environment variables
+    sdk = get_sdk();
+
+    transaction_request = TransactionRequest(
+        reference=str(uuid.uuid4()),  # Unique reference for the transaction
+        type=RecurringType.ONE_TIME,
+        amount=Amount(
+            value=1,  # Amount in cents
+            currency='USD'
+        ),
+        source=Source(
+            type=SourceType.BASIS_THEORY_TOKEN,
+            id=token_id,
+            store_with_provider=False
+        ),
+        customer=Customer(
+            reference=str(uuid.uuid4()),
+            address=Address(
+                address_line1='123 Main St',
+                city='New York', 
+                state='NY',
+                zip='10001',
+                country='GB'
+            )
+        )
+    )
+
+    # Make the transaction request and expect a TransactionError
+    response = sdk.checkout.create_transaction(transaction_request)
+
+    # Validate source
+    assert response.source is not None
+    assert response.source.type in [SourceType.BASIS_THEORY_TOKEN]
+    assert response.source.id is not None
+    assert response.source.provisioned is None
+
+    # Verify exact error code values
+    assert response.response_code.category == ErrorCategory.PAYMENT_METHOD_ERROR
+    assert response.response_code.code == ErrorType.INSUFFICENT_FUNDS.code
+    
+    assert response.full_provider_response['response_code'] == '20051'
+    assert response.full_provider_response['response_summary'] == 'Insufficient Funds'
+
+def test_error_invalid_card():
+    # Create a Basis Theory token
+    token_id = create_bt_token("4485381577182090", "2030", "03", "100")
+
+    # Initialize the SDK with environment variables
+    sdk = get_sdk();
+
+    transaction_request = TransactionRequest(
+        reference=str(uuid.uuid4()),  # Unique reference for the transaction
+        type=RecurringType.ONE_TIME,
+        amount=Amount(
+            value=1,  # Amount in cents
+            currency='USD'
+        ),
+        source=Source(
+            type=SourceType.BASIS_THEORY_TOKEN,
+            id=token_id,
+            store_with_provider=False
+        ),
+        customer=Customer(
+            reference=str(uuid.uuid4()),
+            address=Address(
+                address_line1='123 Main St',
+                city='New York', 
+                state='NY',
+                zip='10001',
+                country='US'
+            )
+        )
+    )
+
+    # Make the transaction request and expect a TransactionError
+    response = sdk.checkout.create_transaction(transaction_request)
+
+    # Verify exact error code values
+    assert response.response_code.category == ErrorCategory.PAYMENT_METHOD_ERROR
+    assert response.response_code.code == ErrorType.INVALID_CARD.code
+    
+    assert response.full_provider_response['response_code'] == '20014'
+    assert response.full_provider_response['response_summary'] == 'Invalid Card Number'
+
+def test_error_stolen_card():
+    # Create a Basis Theory token
+    token_id = create_bt_token("4539253655711767", "2030", "03", "100")
+
+    # Initialize the SDK with environment variables
+    sdk = get_sdk();
+
+    transaction_request = TransactionRequest(
+        reference=str(uuid.uuid4()),  # Unique reference for the transaction
+        type=RecurringType.ONE_TIME,
+        amount=Amount(
+            value=1,  # Amount in cents
+            currency='USD'
+        ),
+        source=Source(
+            type=SourceType.BASIS_THEORY_TOKEN,
+            id=token_id,
+            store_with_provider=False
+        ),
+        customer=Customer(
+            reference=str(uuid.uuid4()),
+            address=Address(
+                address_line1='123 Main St',
+                city='New York', 
+                state='NY',
+                zip='10001',
+                country='IE'
+            )
+        )
+    )
+    # Make the transaction request and expect a TransactionError
+    response = sdk.checkout.create_transaction(transaction_request)
+
+    # Verify exact error code values
+    assert response.response_code.category == ErrorCategory.FRAUD_DECLINE
+    assert response.response_code.code == ErrorType.FRAUD.code
+    
+    assert response.full_provider_response['response_code'] == '30043'
+    assert response.full_provider_response['response_summary'] == 'Stolen Card - Pick Up'
+
+
+def test_error_declined():
+    # Create a Basis Theory token
+    token_id = create_bt_token("4539467987109256", "2030", "03", "100")
+
+    # Initialize the SDK with environment variables
+    sdk = get_sdk();
+
+    transaction_request = TransactionRequest(
+        reference=str(uuid.uuid4()),  # Unique reference for the transaction
+        type=RecurringType.ONE_TIME,
+        amount=Amount(
+            value=1,  # Amount in cents
+            currency='USD'
+        ),
+        source=Source(
+            type=SourceType.BASIS_THEORY_TOKEN,
+            id=token_id,
+            store_with_provider=False
+        ),
+        customer=Customer(
+            reference=str(uuid.uuid4()),
+            address=Address(
+                address_line1='123 Main St',
+                city='New York', 
+                state='NY',
+                zip='10001',
+                country='ES'
+            )
+        )
+    )
+
+     # Make the transaction request and expect a TransactionError
+    response = sdk.checkout.create_transaction(transaction_request)
+
+    assert response.source is not None
+
+    # Verify exact error code values
+    assert response.response_code.category == ErrorCategory.PROCESSING_ERROR
+    assert response.response_code.code == ErrorType.REFUSED.code
+    
+    assert response.full_provider_response['response_code'] == '20005'
+    assert response.full_provider_response['response_summary'] == 'Declined - Do Not Honour'
+
+
+def test_error_invalid_api_key():
+    # Create a Basis Theory token
+    token_id = create_bt_token()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk('invalid', 'nope');
@@ -389,7 +632,7 @@ async def test_error_invalid_api_key():
 
     # Make the transaction request and expect a TransactionError
     with pytest.raises(TransactionError) as exc_info:
-        await sdk.checkout.create_transaction(transaction_request)
+        sdk.checkout.create_transaction(transaction_request)
 
     # Get the error response from the exception
     error_response = exc_info.value.error_response
@@ -409,11 +652,11 @@ async def test_error_invalid_api_key():
     
     # Verify full provider response
     assert error_response.full_provider_response is None
+    assert error_response.basis_theory_extras is not None
 
-@pytest.mark.asyncio
-async def test_token_intents_charge_not_storing_card_on_file(): 
+def test_token_intents_charge_not_storing_card_on_file(): 
     # Create a Basis Theory token
-    token_intent_id = await create_bt_token_intent()
+    token_intent_id = create_bt_token_intent()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -437,7 +680,7 @@ async def test_token_intents_charge_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -467,10 +710,9 @@ async def test_token_intents_charge_not_storing_card_on_file():
     assert response.network_transaction_id is not None
     assert len(response.network_transaction_id) > 0
 
-@pytest.mark.asyncio
-async def test_processor_token_charge_not_storing_card_on_file(): 
+def test_processor_token_charge_not_storing_card_on_file(): 
     # Create a Basis Theory token
-    token_intent_id = await create_bt_token_intent()
+    token_intent_id = create_bt_token_intent()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -502,7 +744,7 @@ async def test_processor_token_charge_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
 
     token_id = response.source.provisioned.id
 
@@ -522,7 +764,7 @@ async def test_processor_token_charge_not_storing_card_on_file():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
 
     # Validate response structure
     assert response.id is not None
@@ -555,10 +797,9 @@ async def test_processor_token_charge_not_storing_card_on_file():
     assert len(response.network_transaction_id) > 0
 
 
-@pytest.mark.asyncio
-async def test_partial_refund():
+def test_partial_refund():
    # Create a Basis Theory token
-    token_intent_id = await create_bt_token_intent()
+    token_intent_id = create_bt_token_intent()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -582,7 +823,7 @@ async def test_partial_refund():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
     
     refund_request = RefundRequest(
         original_transaction_id=response.id,
@@ -591,16 +832,15 @@ async def test_partial_refund():
     )
 
     # Process the refund
-    refund_response = await sdk.checkout.refund_transaction(refund_request)
+    refund_response = sdk.checkout.refund_transaction(refund_request)
 
     # Verify refund succeeded
     assert refund_response.reference == refund_request.reference
     assert refund_response.status.code == TransactionStatusCode.RECEIVED
 
-@pytest.mark.asyncio
-async def test_failed_refund():
+def test_failed_refund():
    # Create a Basis Theory token
-    token_intent_id = await create_bt_token_intent()
+    token_intent_id = create_bt_token_intent()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -624,29 +864,28 @@ async def test_failed_refund():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
     
     refund_request = RefundRequest(
         original_transaction_id=response.id,
         reference=f"{transaction_request.reference}_refund",
-        amount=Amount(value=3738, currency='USD')
+        amount=Amount(value=3739, currency='USD')
     )
     # Process the refund and expect a TransactionError
     with pytest.raises(TransactionError) as exc_info:
-        await sdk.checkout.refund_transaction(refund_request)
+        sdk.checkout.refund_transaction(refund_request)
 
     # Get the error response from the exception
     error_response = exc_info.value.error_response
 
     # Verify refund failed with correct error
     assert error_response.error_codes[0].category == ErrorCategory.PROCESSING_ERROR
-    assert error_response.error_codes[0].code == 'refund_declined'
+    assert error_response.error_codes[0].code == 'refund_amount_exceeds_balance'
 
 
-@pytest.mark.asyncio
-async def test_failed_refund_amount_exceeds_balance():
+def test_failed_refund_amount_exceeds_balance():
    # Create a Basis Theory token
-    token_intent_id = await create_bt_token_intent()
+    token_intent_id = create_bt_token_intent()
 
     # Initialize the SDK with environment variables
     sdk = get_sdk();
@@ -670,7 +909,7 @@ async def test_failed_refund_amount_exceeds_balance():
     )
 
     # Make the transaction request
-    response = await sdk.checkout.create_transaction(transaction_request)
+    response = sdk.checkout.create_transaction(transaction_request)
     
     refund_request = RefundRequest(
         original_transaction_id=response.id,
@@ -679,7 +918,7 @@ async def test_failed_refund_amount_exceeds_balance():
     )
     # Process the refund and expect a TransactionError
     with pytest.raises(TransactionError) as exc_info:
-        await sdk.checkout.refund_transaction(refund_request)
+        sdk.checkout.refund_transaction(refund_request)
 
     # Get the error response from the exception
     error_response = exc_info.value.error_response
@@ -689,14 +928,14 @@ async def test_failed_refund_amount_exceeds_balance():
     assert error_response.error_codes[0].code == 'refund_amount_exceeds_balance'
 
 
-async def run_transactions_for_list(channel, transactions):
+def run_transactions_for_list(channel, transactions):
     sdk = get_sdk(channel)
 
    # Process each transaction
     for tx_data in transactions:
         print(f"Processing transaction: {tx_data['card_number']}")
         # Create a Basis Theory token for each card number
-        token_id = await create_bt_token_intent(tx_data['card_number'], tx_data['cvc'])
+        token_id = create_bt_token_intent(tx_data['card_number'], tx_data['cvc'])
 
         # Convert amount to cents (multiply by 100 and round)
         amount_cents = round(tx_data['amount'] * 100)
@@ -732,7 +971,7 @@ async def run_transactions_for_list(channel, transactions):
         }
 
         # Make the transaction request
-        response = await sdk.checkout.create_transaction(transaction_request)
+        response = sdk.checkout.create_transaction(transaction_request)
         print(f"Response for reference {tx_data['reference']}: {response}")
 
         # Validate response structure
@@ -746,16 +985,15 @@ async def run_transactions_for_list(channel, transactions):
                 'amount': round(tx_data['refund']['amount'] * 100)
             }
             
-            refund_response = await sdk.checkout.refund_transaction(response['id'], refund_request)   
+            refund_response = sdk.checkout.refund_transaction(response['id'], refund_request)   
             print(f"Refund response for reference {tx_data['reference']}: {refund_response}")
 
             assert 'reference' in refund_response
             assert refund_response['reference'] == refund_request['reference']
 
 
-# @pytest.mark.asyncio
 @pytest.mark.skip(reason="Skipping test_run_checkout_verification")
-async def test_run_checkout_verification():
+def test_run_checkout_verification():
     # Test data for multiple transactions
     from faker import Faker
 
@@ -931,6 +1169,6 @@ async def test_run_checkout_verification():
     ]
 
     # Initialize the SDK with environment variables
-    await run_transactions_for_list(us_processing_channel, us_transactions)
-    await run_transactions_for_list(eu_processing_channel, eu_transactions)
+    run_transactions_for_list(us_processing_channel, us_transactions)
+    run_transactions_for_list(eu_processing_channel, eu_transactions)
 

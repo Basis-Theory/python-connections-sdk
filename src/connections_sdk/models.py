@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Any, Dict, List
+from typing import Optional, Any, Dict, List, Literal
 from datetime import datetime
 
 
@@ -89,7 +89,6 @@ class ErrorType(Enum):
         self.code = code
         self.category = category
 
-
 @dataclass
 class Amount:
     value: int
@@ -121,6 +120,7 @@ class Customer:
     last_name: Optional[str] = None
     email: Optional[str] = None
     address: Optional[Address] = None
+    channel: Optional[Literal['ios', 'android', 'web']] = 'web'
 
 
 @dataclass
@@ -133,8 +133,17 @@ class StatementDescription:
 class ThreeDS:
     eci: Optional[str] = None
     authentication_value: Optional[str] = None
-    xid: Optional[str] = None
     version: Optional[str] = None
+    ds_transaction_id: Optional[str] = None
+    directory_status_code: Optional[str] = None
+    authentication_status_code: Optional[str] = None
+    challenge_cancel_reason_code: Optional[str] = None
+    challenge_preference_code: Optional[str] = None
+    authentication_status_reason_code: Optional[str] = None
+
+    # API aligned fields (preferred)
+    threeds_version: Optional[str] = None
+    authentication_status_reason: Optional[str] = None
 
 
 @dataclass
@@ -175,6 +184,15 @@ class TransactionSource:
     id: str
     provisioned: Optional[ProvisionedSource] = None
 
+@dataclass
+class ResponseCode:
+    category: str
+    code: str
+
+@dataclass
+class BasisTheoryExtras:
+    trace_id: str
+
 
 @dataclass
 class TransactionResponse:
@@ -182,11 +200,12 @@ class TransactionResponse:
     reference: str
     amount: Amount
     status: TransactionStatus
+    response_code: ResponseCode
     source: TransactionSource
     full_provider_response: Dict[str, Any]
     created_at: datetime
     network_transaction_id: Optional[str] = None 
-
+    basis_theory_extras: Optional[BasisTheoryExtras] = None
 
 @dataclass
 class RefundResponse:
@@ -208,3 +227,5 @@ class ErrorResponse:
     error_codes: List[ErrorCode]
     provider_errors: List[str]
     full_provider_response: Dict[str, Any]
+    basis_theory_extras: Optional[BasisTheoryExtras] = None
+    

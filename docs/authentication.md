@@ -31,7 +31,7 @@ from connections_sdk import Connections
 load_dotenv()
 
 # Initialize the SDK
-sdk = Connections.init({
+sdk = Connections({
     'is_test': True,  # Set to False for production
     'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
     'provider_config': {

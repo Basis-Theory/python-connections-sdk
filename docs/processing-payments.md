@@ -33,7 +33,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.create_transaction(transaction_request)
+response = sdk.adyen.create_transaction(transaction_request)
 ```
 
 ### $0 Authentication
@@ -69,7 +69,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.create_transaction(transaction_request)
+response = sdk.adyen.create_transaction(transaction_request)
 ```
 
 ### Card-on-File Payments
@@ -105,7 +105,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.create_transaction(transaction_request)
+response = sdk.adyen.create_transaction(transaction_request)
 ```
 
 ### First subscription / unscheduled payment
@@ -140,7 +140,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.create_transaction(transaction_request)
+response = sdk.adyen.create_transaction(transaction_request)
 ```
 
 ## Merchant Initiated Transactions (MIT)
@@ -169,7 +169,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.create_transaction(transaction_request)
+response = sdk.adyen.create_transaction(transaction_request)
 ```
 
 ## 3DS Authentication
@@ -195,12 +195,12 @@ transaction_request = TransactionRequest(
     three_ds=ThreeDS(
         eci='05',
         authentication_value='YOUR_3DS_AUTH_VALUE',
-        xid='YOUR_3DS_XID',
-        version='2.2.0'
+        threeds_version='2.2.0',
+        ds_transaction_id='YOUR_DS_TRANSACTION_ID'
     )
 )
 
-response = await sdk.adyen.create_transaction(transaction_request)
+response = sdk.adyen.create_transaction(transaction_request)
 ```
 
 ## Using Basis Theory Token Intents
@@ -226,7 +226,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.create_transaction(transaction_request)
+response = sdk.adyen.create_transaction(transaction_request)
 ```
 
 ## Using Processor Tokens
@@ -251,7 +251,7 @@ transaction_request = TransactionRequest(
     )
 )
 
-response = await sdk.adyen.create_transaction(transaction_request)
+response = sdk.adyen.create_transaction(transaction_request)
 ```
 
 ## Response Handling

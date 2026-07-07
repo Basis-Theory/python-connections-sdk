@@ -18,8 +18,28 @@ from connections_sdk.models import (
 )
 from connections_sdk.exceptions import TransactionError
 
-@pytest.mark.asyncio
-async def test_errors():
+
+def test_singleton_does_not_reset_adyen_merchant_account():
+    valid_config = {
+        'bt_api_key': 'some_api_key',
+        'is_test': False,
+        'provider_config': {
+            'adyen': {
+                'api_key': 'some_adyen_api_key',
+                'merchant_account': 'merchant_account_1'
+            }
+        }
+    }
+    connections_1 = Connections(valid_config)
+    
+    valid_config['provider_config']['adyen']['merchant_account'] = 'merchant_account_2'
+    connections_2 = Connections(valid_config)
+    
+    # Assert that the adyen.merchant_account has not been reset to 'merchant_account_2'
+    assert connections_1.adyen.merchant_account != connections_2.adyen.merchant_account, f"Connections should not match"
+
+
+def test_errors():
     # Define test cases mapping
     test_cases = [
         {"holder_name": "UNKNOWN", "resultCode": "Error", "refusalReason": "Unknown", "refusalReasonCode": "0", "expected_error": ErrorType.OTHER},
@@ -69,7 +89,7 @@ async def test_errors():
     ]
 
     # Initialize the SDK
-    sdk = Connections.init({
+    sdk = Connections({
         'is_test': True,
         'bt_api_key': 'test_bt_api_key',
         'provider_config': {
@@ -124,12 +144,82 @@ async def test_errors():
 
         # Mock the session.request method
         with patch('requests.request', return_value=mock_response) as mock_request:
-            # For error cases, expect TransactionError with correct error code
-            with pytest.raises(TransactionError) as exc_info:
-                await sdk.adyen.create_transaction(transaction_request)
+            # For error cases, expect TransactionError with correct error cod
+            response = sdk.adyen.create_transaction(transaction_request)
             
-            error_response = exc_info.value.error_response
-            assert error_response.error_codes[0].code == test_case["expected_error"].code
+            assert response.response_code.code == test_case["expected_error"].code
 
             # Verify the request was made
             mock_request.assert_called_once()
+
+
+def test_idempotency_key():
+    """Test that idempotency key is included in headers"""
+    # Initialize the SDK
+    sdk = Connections({
+        'is_test': True,
+        'bt_api_key': 'test_bt_api_key',
+        'provider_config': {
+            'adyen': {
+                'api_key': 'test_adyen_api_key',
+                'merchant_account': 'test_merchant',
+            }
+        }
+    })
+
+    # Create mock response data
+    mock_response_data = {
+        "pspReference": "8837544667111111", 
+        "merchantReference": "test_reference",
+        "amount": {
+            "value": 1000,
+            "currency": "USD"
+        },
+        "resultCode": "Authorised",
+        "additionalData": {}
+    }
+
+    # Create a mock response
+    mock_response = MagicMock()
+    mock_response.json.return_value = mock_response_data
+    mock_response.status_code = 200
+    mock_response.ok = True
+    mock_response.headers = {}
+
+    # Create a test transaction request with network reference
+    transaction_request = TransactionRequest(
+        reference='test_reference',
+        type=RecurringType.ONE_TIME,
+        amount=Amount(
+            value=1000,
+            currency='USD'
+        ),
+        source=Source(
+            type=SourceType.PROCESSOR_TOKEN,
+            id='test_token_id',
+            store_with_provider=False
+        ),
+        customer=Customer(
+            reference='test_customer_ref'
+        ),
+        previous_network_transaction_id='network_ref_123'
+    )
+
+    # Test with idempotency key
+    idempotency_key = 'test-idempotency-key-123'
+    
+    # Mock the session.request method
+    with patch('requests.request', return_value=mock_response) as mock_request:
+        response = sdk.adyen.create_transaction(transaction_request, idempotency_key=idempotency_key)
+
+        # Verify the request was made
+        mock_request.assert_called_once()
+        
+        # Get the call arguments
+        call_args = mock_request.call_args
+        headers = call_args[1]['headers']
+        payload = call_args[1]['json']
+        
+        # Verify idempotency key is in headers
+        assert 'idempotency-key' in headers
+        assert headers['idempotency-key'] == idempotency_key
