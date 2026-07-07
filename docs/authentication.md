@@ -31,13 +31,13 @@ from connections_sdk import Connections
 load_dotenv()
 
 # Initialize the SDK
-sdk = Connections.init({
-    'isTest': True,  # Set to False for production
-    'btApiKey': os.getenv('BASISTHEORY_API_KEY'),
-    'providerConfig': {
+sdk = Connections({
+    'is_test': True,  # Set to False for production
+    'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
+    'provider_config': {
         'adyen': {
-            'apiKey': os.getenv('ADYEN_API_KEY'),
-            'merchantAccount': os.getenv('ADYEN_MERCHANT_ACCOUNT'),
+            'api_key': os.getenv('ADYEN_API_KEY'),
+            'merchant_account': os.getenv('ADYEN_MERCHANT_ACCOUNT'),
         }
     }
 })

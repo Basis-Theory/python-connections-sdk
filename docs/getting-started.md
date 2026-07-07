@@ -38,14 +38,14 @@ from connections_sdk import Connections
 load_dotenv()
 
 # Initialize the SDK with your chosen provider
-sdk = Connections.init({
-    'isTest': True,
-    'btApiKey': os.getenv('BASISTHEORY_API_KEY'),
-    'providerConfig': {
+sdk = Connections({
+    'is_test': True,
+    'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
+    'provider_config': {
         # Configure your chosen provider with their specific configuration
         'adyen': { 
-            'apiKey': os.getenv('ADYEN_API_KEY'),
-            'merchantAccount': os.getenv('ADYEN_MERCHANT_ACCOUNT'),
+            'api_key': os.getenv('ADYEN_API_KEY'),
+            'merchant_account': os.getenv('ADYEN_MERCHANT_ACCOUNT'),
         }
     }
 })
@@ -67,14 +67,14 @@ load_dotenv()
 
 async def process_payment():
     # Initialize the SDK with your chosen provider
-    sdk = Connections.init({
-        'isTest': True,
-        'btApiKey': os.getenv('BASISTHEORY_API_KEY'),
-        'providerConfig': {
+    sdk = Connections({
+        'is_test': True,
+        'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
+        'provider_config': {
             # Configure your chosen provider
             'adyen': {  # Replace with your chosen provider
-                'apiKey': os.getenv('ADYEN_API_KEY'),
-                'merchantAccount': os.getenv('ADYEN_MERCHANT_ACCOUNT'),
+                'api_key': os.getenv('ADYEN_API_KEY'),
+                'merchant_account': os.getenv('ADYEN_MERCHANT_ACCOUNT'),
             }
         }
     })
@@ -123,7 +123,7 @@ async def process_payment():
 
     try:
         # Process the transaction with your chosen provider
-        response = await sdk.adyen.transaction(transaction_request)  # Use sdk.<provider>.transaction()
+        response = sdk.adyen.create_transaction(transaction_request)  # Use sdk.<provider>.transaction()
         print(f"Transaction successful: {response}")
         
         return response
@@ -134,8 +134,7 @@ async def process_payment():
 
 # Run the payment process
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(process_payment())
+    process_payment()
 ```
 
 ## Next Steps

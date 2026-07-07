@@ -24,10 +24,9 @@ from connections_sdk.exceptions import BasisTheoryError
 # Load environment variables from .env file
 load_dotenv()
 
-@pytest.mark.asyncio
-async def test_error_invalid_api_key():
+def test_error_invalid_api_key():
     # Initialize the SDK with environment variables
-    sdk = Connections.init({
+    sdk = Connections({
         'is_test': True,
         'bt_api_key': "invalid",
         'provider_config': {
@@ -62,7 +61,7 @@ async def test_error_invalid_api_key():
 
     # Make the transaction request and expect a BasisTheoryError
     with pytest.raises(BasisTheoryError) as exc_info:
-        await sdk.adyen.transaction(transaction_request)
+        sdk.adyen.create_transaction(transaction_request)
 
     error = exc_info.value
     

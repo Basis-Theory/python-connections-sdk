@@ -5,10 +5,10 @@
 Initialize the SDK with configuration options.
 
 ```python
-sdk = Connections.init({
-    'isTest': bool,
-    'btApiKey': str,
-    'providerConfig': {
+sdk = Connections({
+    'is_test': bool,
+    'bt_api_key': str,
+    'provider_config': {
         [provider]: <ProviderConfig>
     }
 })
@@ -18,16 +18,16 @@ sdk = Connections.init({
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| isTest | bool | Yes | - | Whether to use the test environment for the provider |
-| btApiKey | str | Yes | - | Basis Theory API key |
-| providerConfig | Dict[str, ProviderConfig] | Yes | - | Configuration for the payment provider |
+| is_test | bool | Yes | - | Whether to use the test environment for the provider |
+| bt_api_key | str | Yes | - | Basis Theory API key |
+| provider_config | Dict[str, ProviderConfig] | Yes | - | Configuration for the payment provider |
 
 ## Transaction Methods
 
 Process a payment transaction through a provider, find all of the providers available in our [Providers](./providers/index.md) documentation. Each provider uses the same method signature, request model, and response model. Keep in mind - Each provider may have a unique combination of these fields to accomplish the same goal (e.g. Charging a card-on-file for a subscription vs a customer initiated transaction for two different providers).
 
 ```python
-await sdk.[provider].transaction(TransactionRequest(
+sdk.[provider].create_transaction(TransactionRequest(
     reference='merchant-reference-123',
     type=RecurringType.UNSCHEDULED,
     merchant_initiated=True,
@@ -53,13 +53,15 @@ await sdk.[provider].transaction(TransactionRequest(
             state='NY',
             zip='10001',
             country='US'
-        )
+        ),
+        channel='web'
     ),
     three_ds=ThreeDS(
         eci='05',
-        authentication_value='AAABCZIhcQAAAABZlyFxAAAAAAA=',
-        xid='MDAwMDAwMDAwMDAwMDAwMDAwMDE=',
-        version='2.2.0'
+        authentication_value='YOUR_3DS_AUTH_VALUE',
+        threeds_version='2.2.0',
+        ds_transaction_id='YOUR_DS_TRANSACTION_ID',
+        authentication_status_code='Y'
     ),
     override_provider_properties={
         'additionalData': {
@@ -73,9 +75,77 @@ await sdk.[provider].transaction(TransactionRequest(
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
+| request_data | TransactionRequest | true | - | The details to create a transaction |
+| idempotency_key | string | false | - | Idempotency Key to send to each provider |
+
+### Response
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| id | str | None | Unique identifier for the transaction |
+| reference | str | None | Reference identifier provided in the request |
+| amount | Amount | None | Transaction amount in minor currency units |
+| status | TransactionStatus | None | Current status of the transaction |
+| response_code | ResponseCode | None | Response code of the transaction | 
+| source | TransactionSource | None | Source payment method details |
+| full_provider_response | string | None | Body of the response fromt he provider |
+| created_at | datetime | None | Timestamp when transaction was created |
+| network_transaction_id | str | None | Network transaction identifier |
+| basis_theory_extras | BasisTheoryExtras | None | (Optional) Contains additional information from Basis Theory, such as a `trace_id`. |
+
+## Refund Methods
+
+Process a refund through a provider. Each provider uses the same method signature, request model, and response model.
+
+```python
+sdk.[provider].refund_transaction(RefundRequest(
+    original_transaction_id='ORIGINAL_TRANSACTION_ID',
+    reference='unique-refund-reference',
+    amount=Amount(
+        value=1000,
+        currency='USD'
+    ),
+    reason=RefundReason.CUSTOMER_REQUEST
+))
+```
+
+### Request Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| request_data | RefundRequest | true | - | Request to create a refund |
+| idempotency_key | string | false | - | Idempotency Key to send to each provider |
+
+### Response
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| id | str | None | Unique identifier for the refund |
+| reference | str | None | Reference identifier provided in the request |
+| amount | Amount | None | Amount details of the refund |
+| status | RefundStatus | None | Current status of the refund |
+| refunded_transaction_id | str | None | ID of the original transaction that was refunded |
+| full_provider_response | string | None | Body of the response fromt he provider |
+| created_at | datetime | None | Timestamp when refund was created |
+
+
+## Request Models
+
+### RefundRequest
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| original_transaction_id | str | Yes | - | ID of the original transaction to refund |
+| reference | str | Yes | - | Unique refund reference |
+| amount | Amount | Yes | - | Amount to refund |
+| reason | RefundReason | No | None | Reason for the refund |
+
+### TransactionRequest
+
+| Parameter | Type | Required | Default | Description |
 | reference | str | Yes | - | Unique transaction reference |
 | type | RecurringType | Yes | - | Transaction type |
-| amount | Amount | Yes | - | Transaction amount |
+| amount | Amount | Yes | - | Transaction amount in minor currency units |
 | source | Source | Yes | - | Payment source |
 | customer | Customer | No | None | Customer information |
 | three_ds | ThreeDS | No | None | 3DS authentication data |
@@ -84,21 +154,6 @@ await sdk.[provider].transaction(TransactionRequest(
 | override_provider_properties | Dict[str, Any] | No | None | Appends and replaces any pre-mapped provider properties in the provider request |
 | metadata | Dict[str, Any] | No | None | Metadata to be associated with the transaction |
 
-### Response
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| id | str | None | Unique identifier for the transaction |
-| reference | str | None | Reference identifier provided in the request |
-| amount | Amount | None | Amount details of the transaction |
-| status | TransactionStatus | None | Current status of the transaction |
-| source | TransactionSource | None | Source payment method details |
-| fullProviderResponse | Dict[str, Any] | None | Complete response from the payment provider |
-| createdt | datetime | None | Timestamp when transaction was created |
-| network_transaction_id | str | None | Network transaction identifier |
-
-
-## Request Models
 
 ### RecurringType
 
@@ -142,6 +197,7 @@ await sdk.[provider].transaction(TransactionRequest(
 | last_name | str | None | Customer's last name |
 | email | str | None | Customer's email address |
 | address | Address | None | Customer's address details |
+| channel | Literal['ios', 'android', 'web'] | 'web' | Customer's channel a.k.a device type. |
 
 ### Address
 
@@ -156,12 +212,17 @@ await sdk.[provider].transaction(TransactionRequest(
 
 ### ThreeDS
 
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| eci | str | None | Electronic Commerce Indicator value from 3DS authentication |
-| authentication_value | str | None | Authentication value/CAVV from 3DS authentication |
-| xid | str | None | Transaction identifier from 3DS authentication |
-| version | str | None | Version of 3DS protocol used (e.g. "2.2.0") |
+| Property                       | Type   | Default | Description                                                              |
+|--------------------------------|--------|---------|--------------------------------------------------------------------------|
+| eci                            | str    | None    | Electronic Commerce Indicator value from 3DS authentication.             |
+| authentication_value           | str    | None    | Authentication value/CAVV from 3DS authentication.                       |
+| threeds_version                | str    | None    | Version of 3DS protocol used (e.g., "2.2.0").                            |
+| ds_transaction_id              | str    | None    | Transaction ID from the 3DS Directory Server (DS).                       |
+| directory_status_code          | str    | None    | EMV character code for the directory authentication status.                |
+| authentication_status_code     | str    | None    | EMV character code for the authentication status.                        |
+| challenge_cancel_reason_code   | str    | None    | EMV numeric code for the challenge cancel reason.                        |
+| challenge_preference_code      | str    | None    | EMV numeric code for the selected challenge preference.                    |
+| authentication_status_reason   | str    | None    | Additional information about the authentication status if necessary.       |
 
 
 ## Response Models
@@ -193,6 +254,39 @@ await sdk.[provider].transaction(TransactionRequest(
 | CHALLENGE_SHOPPER | Additional shopper authentication required |
 | RECEIVED | Transaction request was received |
 | PARTIALLY_AUTHORIZED | Transaction was partially authorized |
+
+### RefundReason
+
+| Value | Description |
+|-------|-------------|
+| FRAUD | Refund due to fraudulent activity |
+| CUSTOMER_REQUEST | Customer requested the refund |
+| RETURN | Refund for returned goods |
+| DUPLICATE | Refund for a duplicate charge |
+| OTHER | Other reason for refund |
+
+### ResponseCode
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| category | str | None | The category (e.g. "processing_error") |
+| code | str | None | The specific error code (e.g. "insufficient_funds")  |
+
+
+### BasisTheoryExtras
+
+| Property | Type   | Description                                                              |
+|----------|--------|--------------------------------------------------------------------------|
+| trace_id | str    | The trace ID associated with the request, useful for debugging and support. |
+
+### ErrorResponse
+
+| Property                 | Type                     | Default | Description                                                                                                |
+|--------------------------|--------------------------|---------|------------------------------------------------------------------------------------------------------------|
+| error_codes              | List[ErrorCode]          | None    | A list of `ErrorCode` objects detailing the errors.                                                          |
+| provider_errors          | List[str]                | None    | A list of raw error messages from the provider.                                                              |
+| full_provider_response   | string                   | None    | Body of the response fromt he provider |
+| basis_theory_extras      | BasisTheoryExtras        | None    | (Optional) Contains additional information like `trace_id`.                                                |
 
 ## Error Handling
 

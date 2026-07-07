@@ -7,10 +7,10 @@ This guide explains how to use Checkout.com as a payment provider with the Conne
 Configure Checkout.com in the SDK initialization, for additional information on initializing the SDK see the [API Reference](../api-reference.md#sdk-initialization).
 
 ```python
-sdk = Connections.init({
-    'isTest': True,  # Set to False for production
-    'btApiKey': os.getenv('BASISTHEORY_API_KEY'),
-    'providerConfig': {
+sdk = Connections({
+    'is_test': True,  # Set to False for production
+    'bt_api_key': os.getenv('BASISTHEORY_API_KEY'),
+    'provider_config': {
         'checkout': {
             'private_key': os.getenv('CHECKOUT_PRIVATE_KEY'),
             'processing_channel': os.getenv('CHECKOUT_PROCESSING_CHANNEL')  # Optional
@@ -38,4 +38,4 @@ For testing, a few test card numbers are provided below, for a full list of test
 
 ## Transactions
 
-You will use the `sdk.checkout.transaction()` method to process transactions following the [TransactionRequest](../api-reference.md#transactionrequest) model.
+You will use the `sdk.checkout.create_transaction()` method to process transactions following the [TransactionRequest](../api-reference.md#transactionrequest) model.

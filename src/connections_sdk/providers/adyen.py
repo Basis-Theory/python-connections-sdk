@@ -1,6 +1,7 @@
 from typing import Dict, Any, Tuple, Optional, Union, cast
 from datetime import datetime, timezone
 import requests
+from requests.structures import CaseInsensitiveDict
 from deepmerge import always_merger
 from ..models import (
     TransactionRequest,
@@ -22,9 +23,10 @@ from ..models import (
     ErrorCode,
     TransactionResponse,
     TransactionSource,
-    ProvisionedSource
+    ProvisionedSource,
+    ResponseCode
 )
-from ..utils.model_utils import create_transaction_request, validate_required_fields
+from ..utils.model_utils import create_transaction_request, validate_required_fields, _basis_theory_extras
 from ..utils.request_client import RequestClient
 from ..exceptions import TransactionError
 
@@ -121,6 +123,8 @@ class AdyenClient:
             "merchantAccount": self.merchant_account,
             "shopperInteraction": "ContAuth" if request.merchant_initiated else "Ecommerce",
             "storePaymentMethod": request.source.store_with_provider,
+            "channel": request.customer.channel if request.customer else 'web',
+            
         }
 
         if request.metadata:
@@ -137,6 +141,7 @@ class AdyenClient:
                 payload["recurringProcessingModel"] = recurring_type
 
         # Process source based on type
+        
         payment_method: Dict[str, Any] = {"type": "scheme"}
         
         if request.source.type == SourceType.PROCESSOR_TOKEN:
@@ -153,10 +158,14 @@ class AdyenClient:
         if request.source.holder_name:
                 payment_method["holderName"] = request.source.holder_name
 
-        if request.previous_network_transaction_id:
-            payment_method["networkPaymentReference"] = request. previous_network_transaction_id
-
         payload["paymentMethod"] = payment_method
+
+        additionalData: Dict[str, Any] = {}
+        
+        if request.previous_network_transaction_id:
+            additionalData["networkTxReference"] = request.previous_network_transaction_id
+        
+        payload["additionalData"] = additionalData
 
         # Add customer information
         if request.customer:
@@ -206,22 +215,32 @@ class AdyenClient:
 
         # Map 3DS information
         if request.three_ds:
-            three_ds_data: Dict[str, str] = {}
-
-            if request.three_ds.eci:
-                three_ds_data["eci"] = request.three_ds.eci
+            mpi_data: Dict[str, Any] = {}
+            three_ds_2_request_data: Dict[str, Any] = {}
 
             if request.three_ds.authentication_value:
-                three_ds_data["authenticationValue"] = request.three_ds.authentication_value
+                mpi_data["cavv"] = request.three_ds.authentication_value
+            if request.three_ds.eci:
+                mpi_data["eci"] = request.three_ds.eci
+            if request.three_ds.ds_transaction_id:
+                mpi_data["dsTransID"] = request.three_ds.ds_transaction_id
+            if request.three_ds.directory_status_code:
+                mpi_data["directoryResponse"] = request.three_ds.directory_status_code
+            if request.three_ds.authentication_status_code:
+                mpi_data["authenticationResponse"] = request.three_ds.authentication_status_code
+            if request.three_ds.threeds_version or request.three_ds.version: # threeds_version from API, fallback to version
+                mpi_data["threeDSVersion"] = request.three_ds.threeds_version or request.three_ds.version
+            if request.three_ds.challenge_cancel_reason_code:
+                mpi_data["challengeCancel"] = request.three_ds.challenge_cancel_reason_code
+            
+            if mpi_data:
+                payload["mpiData"] = mpi_data
 
-            if request.three_ds.xid:
-                three_ds_data["xid"] = request.three_ds.xid
+            if request.three_ds.challenge_preference_code:
+                three_ds_2_request_data["threeDSRequestorChallengeInd"] = request.three_ds.challenge_preference_code
 
-            if request.three_ds.version:
-                three_ds_data["threeDSVersion"] = request.three_ds.version
-
-            if three_ds_data:
-                payload["additionalData"] = {"threeDSecure": three_ds_data}
+            if three_ds_2_request_data:
+                payload["threeDS2RequestData"] = three_ds_2_request_data
 
         # Override/merge any provider properties if specified
         if request.override_provider_properties:
@@ -229,18 +248,22 @@ class AdyenClient:
 
         return payload
 
-    def _transform_adyen_response(self, response_data: Dict[str, Any], request: TransactionRequest) -> TransactionResponse:
+    def _transform_adyen_response(self, response_data: Dict[str, Any], request: TransactionRequest, headers: CaseInsensitiveDict) -> TransactionResponse:
         """Transform Adyen response to our standardized format."""
         transaction_response = TransactionResponse(
             id=str(response_data.get("pspReference")),
             reference=str(response_data.get("merchantReference")),
             amount=Amount(
-                value=int(response_data.get("amount", {}).get("value")),
-                currency=str(response_data.get("amount", {}).get("currency"))
+                value=int(response_data.get("amount", {}).get("value", request.amount.value)),
+                currency=str(response_data.get("amount", {}).get("currency", request.amount.currency))
             ),
             status=TransactionStatus(
                 code=self._get_status_code(response_data.get("resultCode")),
                 provider_code=str(response_data.get("resultCode"))
+            ),
+            response_code=ResponseCode(
+                category=ERROR_CODE_MAPPING.get(str(response_data.get("refusalReasonCode")), ErrorType.OTHER).category,
+                code=ERROR_CODE_MAPPING.get(str(response_data.get("refusalReasonCode")), ErrorType.OTHER).code
             ),
             source=TransactionSource(
                 type=request.source.type,
@@ -248,6 +271,7 @@ class AdyenClient:
             ),
             network_transaction_id=str(response_data.get("additionalData", {}).get("networkTxReference")),
             full_provider_response=response_data,
+            basis_theory_extras=_basis_theory_extras(headers),
             created_at=datetime.now(timezone.utc)
         )
 
@@ -261,7 +285,7 @@ class AdyenClient:
 
         return transaction_response
 
-    def _transform_error_response(self, response: requests.Response, response_data: Dict[str, Any]) -> ErrorResponse:
+    def _transform_error_response(self, response: requests.Response, response_data: Dict[str, Any], headers: CaseInsensitiveDict) -> ErrorResponse:
         """Transform error responses to our standardized format.
         
         Args:
@@ -276,10 +300,6 @@ class AdyenClient:
             error_type = ErrorType.INVALID_API_KEY
         elif response.status_code == 403:
             error_type = ErrorType.UNAUTHORIZED
-        # Handle Adyen-specific error codes for declined transactions
-        elif response_data.get("resultCode") in ["Refused", "Error", "Cancelled"]:
-            refusal_code = response_data.get("refusalReasonCode", "")
-            error_type = ERROR_CODE_MAPPING.get(refusal_code, ErrorType.OTHER)
         else:
             error_type = ErrorType.OTHER
 
@@ -291,11 +311,12 @@ class AdyenClient:
                 )
             ],
             provider_errors=[response_data.get("refusalReason") or response_data.get("message", "")],
-            full_provider_response=response_data
+            full_provider_response=response_data,
+            basis_theory_extras=_basis_theory_extras(headers)
         )
 
 
-    async def transaction(self, request_data: TransactionRequest) -> TransactionResponse:
+    def create_transaction(self, request_data: TransactionRequest, idempotency_key: Optional[str] = None) -> TransactionResponse:
         """Process a payment transaction through Adyen's API directly or via Basis Theory's proxy."""
         validate_required_fields(request_data)
 
@@ -307,6 +328,10 @@ class AdyenClient:
             "X-API-Key": self.api_key,
             "Content-Type": "application/json"
         }
+        
+        # Add idempotency key if provided
+        if idempotency_key:
+            headers["idempotency-key"] = idempotency_key
 
         # Make the request (using proxy for BT tokens, direct for processor tokens)
         try:
@@ -320,12 +345,8 @@ class AdyenClient:
 
             response_data = response.json()
 
-            # Check if it's an error response (non-200 status code or Adyen error)
-            if not response.ok or response_data.get("resultCode") in ["Refused", "Error", "Cancelled"]:
-                raise TransactionError(self._transform_error_response(response, response_data))
-
             # Transform the successful response to our format
-            return self._transform_adyen_response(response_data, request_data)
+            return self._transform_adyen_response(response_data, request_data, response.headers)
 
         except requests.exceptions.HTTPError as e:
             try:
@@ -333,10 +354,10 @@ class AdyenClient:
             except:
                 error_data = None
 
-            raise TransactionError(self._transform_error_response(e.response, error_data))
+            raise TransactionError(self._transform_error_response(e.response, error_data, e.response.headers))
 
 
-    async def refund_transaction(self, refund_request: RefundRequest) -> RefundResponse:
+    def refund_transaction(self, refund_request: RefundRequest, idempotency_key: Optional[str] = None) -> RefundResponse:
         """
         Refund a payment transaction through Adyen's API.
         
@@ -352,6 +373,10 @@ class AdyenClient:
             "Content-Type": "application/json"
         }
 
+        # Add idempotency key if provided
+        if idempotency_key:
+            headers["idempotency-key"] = idempotency_key
+            
         # Prepare the refund payload
         payload = {
             "merchantAccount": self.merchant_account,
@@ -401,5 +426,5 @@ class AdyenClient:
             except:
                 error_data = None
 
-            raise TransactionError(self._transform_error_response(e.response, error_data))
+            raise TransactionError(self._transform_error_response(e.response, error_data, e.response.headers))
 
