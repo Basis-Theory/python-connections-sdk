@@ -446,10 +446,11 @@ class CheckoutClient:
                 billing_descriptor["city"] = request.statement_description.city
             source["billing_descriptor"] = billing_descriptor
 
-        # Add 3DS information if provided
         if request.three_ds:
+            # Add 3DS information if provided
             three_ds_data: Dict[str, Any] = {
-                "enabled": True
+                "enabled": True,
+                "allow_upgrade": False
             }
 
             if request.three_ds.authentication_value:
